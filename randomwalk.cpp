@@ -38,7 +38,7 @@ vector < vector<double> > generateData();
  * @return data - vector containing random walks from run()
  */
 
-double meanSquare(vector <double> data);
+double meanSquare(vector <vector<double> > data);
 /**
  * Calculate and return mean square displacement of data as a
  * function of time (number of timesteps).
@@ -79,6 +79,7 @@ vector <double> intScatFunc(vector <double> data);
 ///MAIN PROGRAM
 int main(){
     vector < vector<double> > data = generateData();
+    cout << meanSquare(data) << endl;
     return 0;
 } ///main
 
@@ -97,13 +98,13 @@ vector <double> run() {
 }
 
 vector < vector<double> > generateData(){
-    vector < vector<double> > sample;
+    vector < vector<double> > data;
     ///fill a vector with data from simulated runs
     for(int i = 0; i < RUNS; i++) {
-        sample.push_back(run());
+        data.push_back(run());
     }
     //cout << i << endl;
-    return sample;
+    return data;
 }
 
 double meanSquare(vector <vector<double> > sample) {
