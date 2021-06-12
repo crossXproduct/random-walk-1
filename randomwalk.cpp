@@ -16,7 +16,7 @@
 
 using namespace std;
 
-const int STEPS = 5; ///number of steps per simulation
+const int STEPS = 10; ///number of steps per simulation
 const int RUNS = 5; ///number of sims to run
 const double Q = 0; ///to be determined
 
@@ -30,7 +30,7 @@ vector <double> run();
  * @return r_totals - vector of total displacements at each timestep
  */
 
-vector < vector<double> > generateData(int runs);
+vector < vector<double> > generateData();
 /**
  * Creates a vector containing a specified number of random walks using run().
  * 
@@ -78,10 +78,7 @@ vector <double> intScatFunc(vector <double> data);
 
 ///MAIN PROGRAM
 int main(){
-    vector <double> data = run();
-    for(int i = 0; i < STEPS; i++) {
-        cout << data.at(i) << endl;
-    }
+    vector < vector<double> > data = generateData();
     return 0;
 }
 
@@ -90,15 +87,21 @@ vector <double> run() {
     double step = 0.00;
     srand(time(0));
     for(int i = 0; i < STEPS; i++){
-        ///generate a random number that is either positive or negative
+        ///generate a random number between -1 and 1
         ///and add it to the sum of previous numbers generated
-        int number = rand();
-        step += number*pow(-1,rand());
+        step += (rand() * 1.0 / RAND_MAX) * pow(-1,rand());
         runData.push_back(step);
+        //cout << runData.at(i) << endl;
     }
     return runData;
 }
 
-//vector < vector<double> > generateData(int runs){
-
-//}
+vector < vector<double> > generateData(){
+    vector < vector<double> > sample;
+    int i;
+    for(i = 0; i < RUNS; i++) {
+        sample.push_back(run());
+    }
+    cout << i << endl;
+    return sample;
+}
