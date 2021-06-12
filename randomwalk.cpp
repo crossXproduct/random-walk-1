@@ -19,6 +19,7 @@ using namespace std;
 const int STEPS = 10; ///number of steps per simulation
 const int RUNS = 5; ///number of sims to run
 const double Q = 0; ///to be determined
+const double DIFFUSION = 0; ///to be determined
 
 ///FUNCTION PROTOTYPES
 vector <double> run();
@@ -47,7 +48,7 @@ double meanSquare(vector <vector<double> > data);
  * @return meanSquare - mean square displacement of all data
  */
 
-vector <double> probDistSpace(vector <double> data);
+vector <double> probDistSpace(vector <vector<double> > data);
 /**
  * Calculate and return a vector of probabilities for r_totals as a
  * function of r.
@@ -57,7 +58,7 @@ vector <double> probDistSpace(vector <double> data);
  *                    spatial coordinates
  */
 
-vector <double> probDistTime(vector <double> data);
+vector <double> probDistTime(vector <vector<double> > data);
 /**
  * Calculate and return a vector of probabilities for r_totals as
  * a function of time.
@@ -66,7 +67,7 @@ vector <double> probDistTime(vector <double> data);
  * @return probDist - vector containing probabilities for r_totals wrt
  *                    number of timesteps
  */
-vector <double> intScatFunc(vector <double> data);
+vector <double> intScatFunc(vector <vector<double> > data);
 /**
  * Calculate self-intermediate scattering function as a function of time,
  * with adjustable parameter q.
@@ -88,8 +89,8 @@ vector <double> run() {
     double step = 0.00;
     srand(time(0));
     for(int i = 0; i < STEPS; i++){
-        ///generate a random number between -1 and 1
-        ///and add it to the sum of previous numbers generated
+        ///repeatedly generate a random number between -1 and 1
+        ///and calculate their sum
         step += (rand() * 1.0 / RAND_MAX) * pow(-1,rand());
         runData.push_back(step);
         //cout << runData.at(i) << endl;
@@ -107,21 +108,51 @@ vector < vector<double> > generateData(){
     return data;
 }
 
-double meanSquare(vector <vector<double> > sample) {
+double meanSquare(vector <vector<double> > data) {
     ///calculate and store in a vector the r_totals for each run
-    vector <double> displacements;
+    vector <double> squares;
     for(int i = 0; i < RUNS; i++) {
-        double r_total = 0.0;
-        for(int j = 0; j < STEPS; j++) {
-            r_total += (sample.at(i)).at(j);
-        }
-        displacements.push_back(r_total);
+        double r_total_squared = pow(((data.at(i)).size()-1), 2);
+        squares.push_back(r_total_squared);
     }
     ///calculate the mean square displacement from the r_totals
     double meanSquare;
-    for(int i = 0; i < displacements.size(); i++) {
-        meanSquare = displacements.at(i);
+    for(int i = 0; i < squares.size(); i++) {
+        meanSquare = squares.at(i);
     }
-    meanSquare /= displacements.size();
+    meanSquare /= squares.size();
     return meanSquare;
+}
+
+vector <double> probDistSpace(vector <vector<double> > data) {
+    ///define a vector whose indices are bin numbers corresponding to
+    ///spatial coordinates, and elements contain corresponding probabilities
+    vector <double> counts; ///double to fit probabilities later
+    ///tally the number of r_totals in each bin
+    for(int i = 0; i < RUNS; i++) {
+        ///last data element of each run is its r_total
+        double r_total = (data.at(i)).size()-1;
+        ///add bins as needed to fit data
+        while(r_total >= counts.size()) {
+                counts.push_back(0.0);
+        }
+        int bin = r_total; ///assign r_total to its appropriate bin
+        counts.at(bin) += 1.0; ///increment that bin's count
+    }
+
+    ///normalize by finding and dividing all bins by the max
+    int max = 0;
+    for(int i = 0; i < counts.size(); i++) { 
+        if(counts.at(i) > max) {
+            max = counts.at(i);
+        }
+    }
+    for(int i = 0; i < counts.size(); i++) {
+        counts.at(i) /= max;
+    }
+    return counts;
+}
+
+vector <double> probDistTime(vector <vector<double> > data) {
+    return {};
 }
