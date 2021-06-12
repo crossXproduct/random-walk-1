@@ -80,7 +80,7 @@ vector <double> intScatFunc(vector <double> data);
 int main(){
     vector < vector<double> > data = generateData();
     return 0;
-}
+} ///main
 
 vector <double> run() {
     vector <double> runData;
@@ -98,10 +98,29 @@ vector <double> run() {
 
 vector < vector<double> > generateData(){
     vector < vector<double> > sample;
-    int i;
-    for(i = 0; i < RUNS; i++) {
+    ///fill a vector with data from simulated runs
+    for(int i = 0; i < RUNS; i++) {
         sample.push_back(run());
     }
-    cout << i << endl;
+    //cout << i << endl;
     return sample;
+}
+
+double meanSquare(vector <vector<double> > sample) {
+    ///calculate and store in a vector the r_totals for each run
+    vector <double> displacements;
+    for(int i = 0; i < RUNS; i++) {
+        double r_total;
+        for(int j = 0; j < STEPS; j++) {
+            r_total += (sample.at(i)).at(j);
+        }
+        displacements.push_back(r_total);
+    }
+    ///calculate the mean square displacement from the r_totals
+    double meanSquare;
+    for(int i = 0; i < displacements.size(); i++) {
+        meanSquare = displacements.at(i);
+    }
+    meanSquare /= displacements.size();
+    return meanSquare;
 }
