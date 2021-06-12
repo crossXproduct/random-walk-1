@@ -111,7 +111,7 @@ double meanSquare(vector <vector<double> > sample) {
     ///calculate and store in a vector the r_totals for each run
     vector <double> displacements;
     for(int i = 0; i < RUNS; i++) {
-        double r_total;
+        double r_total = 0.0;
         for(int j = 0; j < STEPS; j++) {
             r_total += (sample.at(i)).at(j);
         }
