@@ -8,17 +8,20 @@
  */
 
 #include <cstdlib>
+#include <iostream>
+#include <iomanip>
 #include <cmath>
 #include <vector>
+#include <ctime>
 
 using namespace std;
 
-const int STEPS = 50;
-const int RUNS = 5;
+const int STEPS = 5; ///number of steps per simulation
+const int RUNS = 5; ///number of sims to run
 const double Q = 0; ///to be determined
 
-///FUNCTION DOCUMENTATION
-vector <double> run(int time);
+///FUNCTION PROTOTYPES
+vector <double> run();
 /**
  * Generates a random walk with specified number of timesteps,
  * and calculates and returns a vector of total displacements at each timestep.
@@ -75,5 +78,27 @@ vector <double> intScatFunc(vector <double> data);
 
 ///MAIN PROGRAM
 int main(){
+    vector <double> data = run();
+    for(int i = 0; i < STEPS; i++) {
+        cout << data.at(i) << endl;
+    }
     return 0;
 }
+
+vector <double> run() {
+    vector <double> runData;
+    double step = 0.00;
+    srand(time(0));
+    for(int i = 0; i < STEPS; i++){
+        ///generate a random number that is either positive or negative
+        ///and add it to the sum of previous numbers generated
+        int number = rand();
+        step += number*pow(-1,rand());
+        runData.push_back(step);
+    }
+    return runData;
+}
+
+//vector < vector<double> > generateData(int runs){
+
+//}
