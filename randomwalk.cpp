@@ -154,6 +154,29 @@ vector <double> probDistSpace(vector <vector<double> > data) {
     return counts;
 }
 
-//vector <double> probDistTime(vector <vector<double> > data) {
-//    return {};
-//}
+vector <double> probDistTime(vector <vector<double> > data) {
+    ///define a vector whose indices are time coordinates and whose elements
+    ///contain corresponding probabilities
+    vector <double> counts(STEPS);
+    for(int i = 0; i < RUNS; i++) {
+        for(int j = 0; j < STEPS; j++) {
+            counts.at(j) += (data.at(i)).at(j);
+        }
+    }
+    ///normalize by finding and dividing all bins by the max
+    int max = 0;
+    for(int i = 0; i < counts.size(); i++) { 
+        if(counts.at(i) > max) {
+            max = counts.at(i);
+        }
+    }
+    for(int i = 0; i < counts.size(); i++) {
+        counts.at(i) /= max;
+        cout << counts.at(i);
+    }
+    return counts;
+}
+
+vector <double> intScatFunc(vector <vector<double> > data) {
+    
+}
