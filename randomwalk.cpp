@@ -80,7 +80,11 @@ vector <double> intScatFunc(vector <vector<double> > data);
 ///MAIN PROGRAM
 int main(){
     vector < vector<double> > data = generateData();
-    //cout << meanSquare(data) << endl;
+
+    double meanSqDisp = meanSquare(data); ///mean square displacement
+    vector <double> probSpace = probDistSpace(data); ///probability distribution as function of space
+    vector <double> probTime = probDistTime(data); ///probability distribution as function of time
+    vector <double> f_s = intScatFunc(data); ///self-intermediate scattering function
     return 0;
 } ///main
 
