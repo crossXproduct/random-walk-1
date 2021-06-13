@@ -178,5 +178,10 @@ vector <double> probDistTime(vector <vector<double> > data) {
 }
 
 vector <double> intScatFunc(vector <vector<double> > data) {
-    
+    vector <double> f_s;
+    for(int i = 0; i < RUNS; i++) {
+        double r_total = (data.at(i)).size()-1;
+        f_s.at(i) = cos(Q*r_total)/RUNS;
+    }
+    return f_s;
 }
