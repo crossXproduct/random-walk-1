@@ -80,7 +80,7 @@ vector <double> intScatFunc(vector <vector<double> > data);
 ///MAIN PROGRAM
 int main(){
     vector < vector<double> > data = generateData();
-    cout << meanSquare(data) << endl;
+    //cout << meanSquare(data) << endl;
     return 0;
 } ///main
 
@@ -149,10 +149,11 @@ vector <double> probDistSpace(vector <vector<double> > data) {
     }
     for(int i = 0; i < counts.size(); i++) {
         counts.at(i) /= max;
+        cout << counts.at(i);
     }
     return counts;
 }
 
-vector <double> probDistTime(vector <vector<double> > data) {
-    return {};
-}
+//vector <double> probDistTime(vector <vector<double> > data) {
+//    return {};
+//}
