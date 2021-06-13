@@ -48,23 +48,23 @@ vector <double> meanSquare(vector <vector<double> > data);
  * @return meanSquare - mean square displacement of all data
  */
 
-vector <double> probDistSpace(vector <vector<double> > data);
+vector <double> spaceDist(vector <vector<double> > data);
 /**
  * Calculate and return a vector of probabilities for r_totals as a
  * function of r.
  * 
  * @param data - vector containing random walk data
- * @return probDist - vector containing probabilities for r_totals wrt
+ * @return distribution - vector containing probabilities for r_totals wrt
  *                    spatial coordinates
  */
 
-vector <double> probDistTime(vector <vector<double> > data);
+vector <double> timeDist(vector <vector<double> > data);
 /**
  * Calculate and return a vector of probabilities for r_totals as
  * a function of time.
  * 
  * @param data - vector containing random walk data
- * @return probDist - vector containing probabilities for r_totals wrt
+ * @return distribution - vector containing probabilities for r_totals wrt
  *                    number of timesteps
  */
 vector <double> intScatFunc(vector <vector<double> > data);
@@ -82,8 +82,8 @@ int main(){
     vector < vector<double> > data = generateData(); ///vector of individual runs
 
     vector <double> meanSqDisp = meanSquare(data); ///mean square displacement as function of time
-    vector <double> probSpace = probDistSpace(data); ///probability distribution as function of space
-    vector <double> probTime = probDistTime(data); ///probability distribution as function of time
+    vector <double> probSpace = spaceDist(data); ///probability distribution as function of space
+    vector <double> probTime = timeDist(data); ///probability distribution as function of time
     vector <double> f_s = intScatFunc(data); ///self-intermediate scattering function
     return 0;
 } ///main
@@ -129,57 +129,57 @@ vector<double> meanSquare(vector <vector<double> > data) {
     return squares;
 }
 
-vector <double> probDistSpace(vector <vector<double> > data) {
+vector <double> spaceDist(vector <vector<double> > data) {
     ///define a vector whose indices are bin numbers corresponding to
     ///spatial coordinates, and elements contain corresponding probabilities
-    vector <double> counts; ///double to fit probabilities later
+    vector <double> distribution; ///double to fit probabilities later
     ///tally the number of r_totals in each bin
     for(int i = 0; i < RUNS; i++) {
         ///last data element of each run is its r_total
         double r_total = (data.at(i)).size()-1;
         ///add bins as needed to fit data
-        while(r_total >= counts.size()) {
-                counts.push_back(0.0);
+        while(r_total >= distribution.size()) {
+             distribution.push_back(0.0);
         }
         int bin = r_total; ///assign r_total to its appropriate bin
-        counts.at(bin) += 1.0; ///increment that bin's count
+     distribution.at(bin) += 1.0; ///increment that bin's count
     }
 
     ///normalize by finding and dividing all bins by the max
     int max = 0;
-    for(int i = 0; i < counts.size(); i++) { 
-        if(counts.at(i) > max) {
-            max = counts.at(i);
+    for(int i = 0; i < distribution.size(); i++) { 
+        if (distribution.at(i) > max) {
+            max = distribution.at(i);
         }
     }
-    for(int i = 0; i < counts.size(); i++) {
-        counts.at(i) /= max;
-        cout << counts.at(i);
+    for(int i = 0; i < distribution.size(); i++) {
+     distribution.at(i) /= max;
+        cout << distribution.at(i);
     }
-    return counts;
+    return distribution;
 }
 
-vector <double> probDistTime(vector <vector<double> > data) {
+vector <double> timeDist(vector <vector<double> > data) {
     ///define a vector whose indices are time coordinates and whose elements
     ///contain corresponding probabilities
-    vector <double> counts(STEPS);
+    vector <double> distribution(STEPS);
     for(int i = 0; i < RUNS; i++) {
         for(int j = 0; j < STEPS; j++) {
-            counts.at(j) += (data.at(i)).at(j);
+         distribution.at(j) += (data.at(i)).at(j);
         }
     }
     ///normalize by finding and dividing all bins by the max
     int max = 0;
-    for(int i = 0; i < counts.size(); i++) { 
-        if(counts.at(i) > max) {
-            max = counts.at(i);
+    for(int i = 0; i < distribution.size(); i++) { 
+        if (distribution.at(i) > max) {
+            max = distribution.at(i);
         }
     }
-    for(int i = 0; i < counts.size(); i++) {
-        counts.at(i) /= max;
-        cout << counts.at(i);
+    for(int i = 0; i < distribution.size(); i++) {
+     distribution.at(i) /= max;
+        cout << distribution.at(i);
     }
-    return counts;
+    return distribution;
 }
 
 vector <double> intScatFunc(vector <vector<double> > data) {
