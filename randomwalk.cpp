@@ -39,7 +39,7 @@ vector < vector<double> > generateData();
  * @return data - vector containing random walks from run()
  */
 
-double meanSquare(vector <vector<double> > data);
+vector <double> meanSquare(vector <vector<double> > data);
 /**
  * Calculate and return mean square displacement of data as a
  * function of time (number of timesteps).
@@ -79,9 +79,9 @@ vector <double> intScatFunc(vector <vector<double> > data);
 
 ///MAIN PROGRAM
 int main(){
-    vector < vector<double> > data = generateData();
+    vector < vector<double> > data = generateData(); ///vector of individual runs
 
-    double meanSqDisp = meanSquare(data); ///mean square displacement
+    vector <double> meanSqDisp = meanSquare(data); ///mean square displacement as function of time
     vector <double> probSpace = probDistSpace(data); ///probability distribution as function of space
     vector <double> probTime = probDistTime(data); ///probability distribution as function of time
     vector <double> f_s = intScatFunc(data); ///self-intermediate scattering function
@@ -112,20 +112,21 @@ vector < vector<double> > generateData(){
     return data;
 }
 
-double meanSquare(vector <vector<double> > data) {
-    ///calculate and store in a vector the r_totals for each run
-    vector <double> squares;
+vector<double> meanSquare(vector <vector<double> > data) {
+    ///calculate and store in a vector the squares of each r_total for each run
+    ///vector index is the time
+    vector <double> squares(STEPS);
     for(int i = 0; i < RUNS; i++) {
-        double r_total_squared = pow(((data.at(i)).size()-1), 2);
-        squares.push_back(r_total_squared);
+        for(int j = 0; j < STEPS; j++) {
+            double r_total_squared = pow((data.at(i)).at(j), 2);
+            squares.at(j) += r_total_squared;
+        }
     }
-    ///calculate the mean square displacement from the r_totals
-    double meanSquare;
-    for(int i = 0; i < squares.size(); i++) {
-        meanSquare = squares.at(i);
+    ///divide each r_total square by corresponding number of steps to get average
+    for(int i = 0; i < STEPS; i++) {
+        squares.at(i) /= i;
     }
-    meanSquare /= squares.size();
-    return meanSquare;
+    return squares;
 }
 
 vector <double> probDistSpace(vector <vector<double> > data) {
