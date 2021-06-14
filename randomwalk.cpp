@@ -20,7 +20,7 @@ using namespace std;
 const int STEPS = 10; ///number of steps per simulation
 const int RUNS = 5; ///number of sims to run
 const double Q = 0; ///to be determined
-const string FILENAME = ""; ///name of data file to be generated
+const string FILENAME = "data.txt"; ///name of data file to be generated
 
 ///FUNCTION PROTOTYPES
 vector <double> run();
@@ -78,7 +78,7 @@ vector <double> intScatFunc(vector<double> tdist);
  *                    values wrt number of timesteps
  */
 
-void printToFile(vector<double> values, string name, ofstream file);
+void printToFile(vector<double> values, string name, ofstream &file);
 /**
  * Print double vector data to a file in the format:
  * index    value
@@ -88,7 +88,7 @@ void printToFile(vector<double> values, string name, ofstream file);
  * @param file - file to print to
  */
 
-void printToFile(vector< vector<double> > values, string name, ofstream file);
+void printToFile(vector< vector<double> > values, string name, ofstream &file);
 /**
  * Print vector of vector data to a file in the format:
  * index    value1  value2  value3  ...
@@ -103,29 +103,30 @@ void printToFile(vector< vector<double> > values, string name, ofstream file);
 ///MAIN PROGRAM
 int main(){
     ///Declare & initialize variables
-    
+    srand(time(0));
     string dataName = "Data";
     vector < vector<double> > data = generateData(); ///vector of individual runs
     string msquaresName = "Mean Square Displacement";
     vector <double> msquares = meanSquare(data); ///mean square displacement as function of time
-    string sdistName = "Space Probability Distribution";
-    vector <double> sdist = spaceDist(data); ///probability tdist as function of space
-    string tdistName = "Time Probability Distribution";
-    vector <double> tdist = timeDist(data); ///probability tdist as function of time
+    //string sdistName = "Space Probability Distribution";
+    //vector <double> sdist = spaceDist(data); ///probability tdist as function of space
+    //string tdistName = "Time Probability Distribution";
+    //vector <double> tdist = timeDist(data); ///probability tdist as function of time
     ///self-intermediate scattering function as function of time with parameter Q
-    string f_sName = "Self-Intermediate Scattering Function";
-    vector <double> f_s = intScatFunc(tdist);
+    //string f_sName = "Self-Intermediate Scattering Function";
+    //vector <double> f_s = intScatFunc(tdist);
+    
     
     ///Open file stream and print data
     ofstream file;
     file.open(FILENAME);
     printToFile(data, dataName, file);
     printToFile(msquares, msquaresName, file);
-    printToFile(sdist, sdistName, file);
-    printToFile(tdist, tdistName, file);
-    printToFile(f_s, f_sName, file);
+    //printToFile(sdist, sdistName, file);
+    //printToFile(tdist, tdistName, file);
+    //printToFile(f_s, f_sName, file);
     file.close();
-
+    
     ///END OF PROGRAM
     return 0;
 } ///main
@@ -133,10 +134,11 @@ int main(){
 vector <double> run() {
     vector <double> runData;
     double step = 0.00;
-    srand(time(0));
+    //srand(time(0));
     for(int i = 0; i < STEPS; i++){
         ///repeatedly generate a random number between -1 and 1
         ///and calculate their sum
+        //srand(time(0));
         step += (rand() * 1.0 / RAND_MAX) * pow(-1,rand());
         runData.push_back(step);
         //cout << runData.at(i) << endl;
@@ -233,21 +235,24 @@ vector <double> intScatFunc(vector<double> tdist) {
     return f_s;
 }
 
-void printToFile(vector<double> values, string name, ofstream file) {
+void printToFile(vector<double> values, string name, ofstream &file) {
     file << name << endl;
     for(int i = 0; i < values.size(); i++) {
-        file << i << '\t' << values.at(i) << endl;
+        file << left << setw(12) <<setfill(' '); ///output format
+        file << i << values.at(i) << endl; ///print elements
     }
     file << '\n';
 }
 
-void printToFile(vector< vector<double> > values, string name, ofstream file) {
+void printToFile(vector< vector<double> > values, string name, ofstream &file) {
     file << name << endl;
     for(int i = 0; i < values.size(); i++) {
-        file << i;
+        file << left << setw(12) <<setfill(' '); ///output format
+        file << i; ///print index
         for(int j = 0; j < values.at(i).size(); j++) {
-            file << '\t' << values.at(i).at(j);
+            file << left << setw(12) <<setfill(' ');
+            file << values.at(i).at(j); ///print elements
         }
+        file << '\n';
     }
-    file << '\n';
 }
