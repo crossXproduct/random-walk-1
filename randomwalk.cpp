@@ -19,7 +19,6 @@ using namespace std;
 const int STEPS = 10; ///number of steps per simulation
 const int RUNS = 5; ///number of sims to run
 const double Q = 0; ///to be determined
-const double DIFFUSION = 0; ///to be determined
 
 ///FUNCTION PROTOTYPES
 vector <double> run();
@@ -67,13 +66,13 @@ vector <double> timeDist(vector <vector<double> > data);
  * @return distribution - vector containing probabilities for r_totals wrt
  *                    number of timesteps
  */
-vector <double> intScatFunc(vector <vector<double> > data);
+vector <double> intScatFunc(vector<double> tdist);
 /**
  * Calculate self-intermediate scattering function as a function of time,
- * with adjustable parameter q.
+ * with adjustable parameter Q.
  * 
- * @param data - vector containing random walk data
- * @return scatFunc - vector containing self-intermediate scattering function
+ * @param tdist - vector containing time distribution data created by timeDist()
+ * @return f_s - vector containing self-intermediate scattering function
  *                    values wrt number of timesteps
  */
 
@@ -84,7 +83,10 @@ int main(){
     vector <double> meanSqDisp = meanSquare(data); ///mean square displacement as function of time
     vector <double> probSpace = spaceDist(data); ///probability distribution as function of space
     vector <double> probTime = timeDist(data); ///probability distribution as function of time
-    vector <double> f_s = intScatFunc(data); ///self-intermediate scattering function
+    ///self-intermediate scattering function as function of time
+    ///with parameter Q
+    vector <double> f_s = intScatFunc(probTime);
+    
     return 0;
 } ///main
 
@@ -182,10 +184,10 @@ vector <double> timeDist(vector <vector<double> > data) {
     return distribution;
 }
 
-vector <double> intScatFunc(vector <vector<double> > data) {
-    vector <double> f_s;
+vector <double> intScatFunc(vector<double> tdist) {
+    vector <double> f_s(RUNS);
     for(int i = 0; i < RUNS; i++) {
-        double r_total = (data.at(i)).size()-1;
+        double r_total = tdist.at(i); ///last element in each run is the 
         f_s.at(i) = cos(Q*r_total)/RUNS;
     }
     return f_s;
