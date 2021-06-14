@@ -17,7 +17,7 @@
 
 using namespace std;
 
-const int STEPS = 5; ///number of steps per simulation
+const int STEPS = 10; ///number of steps per simulation
 const int RUNS = 5; ///number of sims to run
 const double Q = 0; ///to be determined
 const string FILENAME = "data.txt"; ///name of data file to be generated
@@ -160,7 +160,7 @@ vector < vector<double> > generateData(){ ///WORKING
 vector<double> meanSquare(vector< vector<double> > data) { ///WORKING
     ///calculate and store in a vector the squares of each r_total for each run
     ///vector index is the time
-    vector <double> msquares(STEPS);
+    vector <double> msquares(RUNS);
     for(int i = 0; i < RUNS; i++) {
         for(int j = 0; j < STEPS; j++) {
             double r_total_squared = pow((data.at(i)).at(j), 2);
@@ -174,32 +174,29 @@ vector<double> meanSquare(vector< vector<double> > data) { ///WORKING
     return msquares;
 }
 
-vector <double> spaceDist(vector< vector<double> > data) {
+vector <double> spaceDist(vector< vector<double> > data) { ///Debugging
+
     ///define a vector whose indices are bin numbers corresponding to
     ///spatial coordinates, and elements contain corresponding probabilities
     vector <double> sdist; ///double to fit probabilities later
-    ///tally the number of r_totals in each bin
-    for(int i = 0; i < RUNS; i++) {
-        ///last data element of each run is its r_total
-        double r_total = (data.at(i)).size()-1;
-        ///add bins as needed to fit data
-        while(r_total >= sdist.size()) {
+
+    for(int i = 0; i < RUNS; i++) { ///tally the number of r_totals in each bin
+        double r_total = (data.at(i)).at(STEPS-1); ///last data element of each run is its r_total
+        while(r_total >= sdist.size()) { ///add bins as needed to fit data
              sdist.push_back(0.0);
         }
-        int bin = r_total; ///assign r_total to its appropriate bin
-     sdist.at(bin) += 1.0; ///increment that bin's count
+        int bin = r_total; ///find appropriate bin for r_total
+        sdist.at(bin) = sdist.at(bin) + 1; ///increment bin count
     }
 
-    ///normalize by finding and dividing all bins by the max
-    int max = 0;
+    ///normalize by finding and dividing all bins by area (number of counts in each bin * bin size (1))
+    int count = 0;
     for(int i = 0; i < sdist.size(); i++) { 
-        if (sdist.at(i) > max) {
-            max = sdist.at(i);
-        }
+        count += sdist.at(i)*1;
     }
     for(int i = 0; i < sdist.size(); i++) {
-     sdist.at(i) /= max;
-        cout << sdist.at(i);
+        sdist.at(i) /= count; ///divide all bins by area
+        //cout << sdist.at(i);
     }
     return sdist;
 }
