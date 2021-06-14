@@ -17,7 +17,7 @@
 
 using namespace std;
 
-const int STEPS = 10; ///number of steps per simulation
+const int STEPS = 5; ///number of steps per simulation
 const int RUNS = 5; ///number of sims to run
 const double Q = 0; ///to be determined
 const string FILENAME = "data.txt"; ///name of data file to be generated
@@ -108,8 +108,8 @@ int main(){
     vector < vector<double> > data = generateData(); ///vector of individual runs
     string msquaresName = "Mean Square Displacement";
     vector <double> msquares = meanSquare(data); ///mean square displacement as function of time
-    //string sdistName = "Space Probability Distribution";
-    //vector <double> sdist = spaceDist(data); ///probability tdist as function of space
+    string sdistName = "Space Probability Distribution";
+    vector <double> sdist = spaceDist(data); ///probability tdist as function of space
     //string tdistName = "Time Probability Distribution";
     //vector <double> tdist = timeDist(data); ///probability tdist as function of time
     ///self-intermediate scattering function as function of time with parameter Q
@@ -122,7 +122,7 @@ int main(){
     file.open(FILENAME);
     printToFile(data, dataName, file);
     printToFile(msquares, msquaresName, file);
-    //printToFile(sdist, sdistName, file);
+    printToFile(sdist, sdistName, file);
     //printToFile(tdist, tdistName, file);
     //printToFile(f_s, f_sName, file);
     file.close();
@@ -131,7 +131,7 @@ int main(){
     return 0;
 } ///main
 
-vector <double> run() {
+vector <double> run() { ///WORKING
     vector <double> runData;
     double step = 0.00;
     //srand(time(0));
@@ -139,14 +139,15 @@ vector <double> run() {
         ///repeatedly generate a random number between -1 and 1
         ///and calculate their sum
         //srand(time(0));
-        step += (rand() * 1.0 / RAND_MAX) * pow(-1,rand());
+        double r_total = (rand() * 1.0 / RAND_MAX) * pow(-1,rand());
+        step += r_total;
         runData.push_back(step);
-        //cout << runData.at(i) << endl;
+        //cout << r_total << endl; //for debugging
     }
     return runData;
 }
 
-vector < vector<double> > generateData(){
+vector < vector<double> > generateData(){ ///WORKING
     vector < vector<double> > data;
     ///fill a vector with data from simulated runs
     for(int i = 0; i < RUNS; i++) {
@@ -156,19 +157,19 @@ vector < vector<double> > generateData(){
     return data;
 }
 
-vector<double> meanSquare(vector< vector<double> > data) {
-    ///calculate and store in a vector the msquares of each r_total for each run
+vector<double> meanSquare(vector< vector<double> > data) { ///WORKING
+    ///calculate and store in a vector the squares of each r_total for each run
     ///vector index is the time
     vector <double> msquares(STEPS);
     for(int i = 0; i < RUNS; i++) {
         for(int j = 0; j < STEPS; j++) {
             double r_total_squared = pow((data.at(i)).at(j), 2);
-            msquares.at(j) += r_total_squared;
+            msquares.at(i) += r_total_squared;
         }
     }
     ///divide each r_total square by corresponding number of steps to get average
-    for(int i = 0; i < STEPS; i++) {
-        msquares.at(i) /= i;
+    for(int i = 0; i < RUNS; i++) {
+        msquares.at(i) /= STEPS;
     }
     return msquares;
 }
@@ -229,19 +230,19 @@ vector <double> timeDist(vector< vector<double> > data) {
 vector <double> intScatFunc(vector<double> tdist) {
     vector <double> f_s(RUNS);
     for(int i = 0; i < RUNS; i++) {
-        double r_total = tdist.at(i); ///last element in each run is the 
+        double r_total = tdist.at(i); 
         f_s.at(i) = cos(Q*r_total)/RUNS;
     }
     return f_s;
 }
 
 void printToFile(vector<double> values, string name, ofstream &file) {
-    file << name << endl;
+    file << name << endl; ///print vector name
     for(int i = 0; i < values.size(); i++) {
-        file << left << setw(12) <<setfill(' '); ///output format
+        file << setprecision(6) << left << setw(12) <<setfill(' '); ///output format
         file << i << values.at(i) << endl; ///print elements
     }
-    file << '\n';
+    file << '\n' << '\n';
 }
 
 void printToFile(vector< vector<double> > values, string name, ofstream &file) {
@@ -250,9 +251,10 @@ void printToFile(vector< vector<double> > values, string name, ofstream &file) {
         file << left << setw(12) <<setfill(' '); ///output format
         file << i; ///print index
         for(int j = 0; j < values.at(i).size(); j++) {
-            file << left << setw(12) <<setfill(' ');
+            file << setprecision(6) << left << setw(12) <<setfill(' ');
             file << values.at(i).at(j); ///print elements
         }
         file << '\n';
     }
+    file << '\n' << '\n';
 }
