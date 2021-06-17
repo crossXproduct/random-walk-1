@@ -17,22 +17,22 @@ class Distribution {
             //..
         }
 
-        Distribution(int steps) {
+        Distribution(int n) {
             //..
         }
 
         ///Getters & Setters
-        void setSteps(int steps) {
-            //..
-        }
+        void setSteps(int n) { steps = n; }
 
-        void setX(double x) {
-            //..
-        }
+        void setX(int index, double x_value) { x.at(index) = x_value; }
 
-        void setY(double y) {
-            //..
-        }
+        void setY(int index, double y_value) { y.at(index) = y_value; }
+
+        int getSteps() { return steps; }
+
+        vector<double> getX() { return x; }
+        
+        vector<double> getY() { return y; }
 
         ///Helpers
         void printX() {
@@ -40,10 +40,6 @@ class Distribution {
         }
 
         void printY() {
-            //..
-        }
-
-        void update(double r, int index) {
             //..
         }
 
