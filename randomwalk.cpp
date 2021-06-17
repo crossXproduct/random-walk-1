@@ -12,6 +12,9 @@ using namespace std;
 namespace plt = matplotlibcpp;
 
 ///TEMPLATES
+void runSpecs(int &steps, int &runs); ///Process user input for number of steps & runs
+void history(int steps); ///Generate a single history and print to file
+void compute(int runs, Distribution &p, Distribution &q, Distribution &r, Distribution &s); ///Update quantities
 Distribution buildRSquareThy(int steps); ///Build theoretical mean square displacement wrt time
 Distribution buildSDistThy(vector<double> x); ///Build theoretical space prob. dist.
 Distribution buildTDistThy(int steps); ///Build theoretical time prob. dist.
@@ -34,20 +37,31 @@ void runSpecs(int &steps, int &runs) {
 }
 
 void history(int steps) {
-    vector <double> runData;
+    ///Open a file stream
+    string filename = "data.txt";
+    ofstream file;
+    file.open(filename);
+
+    ///Prepare for generation
     srand(time(0));
     double step = 0.00;
+
+    ///Generate
     for(int i = 0; i < steps; i++){
         step = rand() % 1;
         if(step >= 0.5) {
             step = 1;
         }
         else step = -1;
+        file << step << endl;
     }
+
+    ///Close file stream
+    file.close();
 }
 
 ///Computes quantities using data from successive runs
-void compute(int runs, Distribution p, Distribution q, Distribution r, Distribution s) {
+void compute(int runs, Distribution &p, Distribution &q, Distribution &r, Distribution &s) {
     //..
 }
 
