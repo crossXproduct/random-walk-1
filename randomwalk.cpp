@@ -139,7 +139,8 @@ vector <double> run() { ///WORKING
         ///repeatedly generate a random number between -1 and 1
         ///and calculate their sum
         //srand(time(0));
-        double r_total = (rand() * 1.0 / RAND_MAX) * pow(-1,rand());
+        int power = rand();
+        double r_total = pow(-1,power);
         step += r_total;
         runData.push_back(step);
         //cout << r_total << endl; //for debugging
@@ -178,26 +179,26 @@ vector <double> spaceDist(vector< vector<double> > data) { ///Debugging
 
     ///define a vector whose indices are bin numbers corresponding to
     ///spatial coordinates, and elements contain corresponding probabilities
-    vector <double> sdist; ///double to fit probabilities later
+    vector <double> sdist(1); ///double to fit probabilities later
 
     for(int i = 0; i < RUNS; i++) { ///tally the number of r_totals in each bin
-        double r_total = (data.at(i)).at(STEPS-1); ///last data element of each run is its r_total
+        int r_total = (data.at(i)).at(STEPS-1); ///last data element of each run is its r_total
         while(r_total >= sdist.size()) { ///add bins as needed to fit data
              sdist.push_back(0.0);
         }
         int bin = r_total; ///find appropriate bin for r_total
         sdist.at(bin) = sdist.at(bin) + 1; ///increment bin count
     }
-
-    ///normalize by finding and dividing all bins by area (number of counts in each bin * bin size (1))
-    int count = 0;
-    for(int i = 0; i < sdist.size(); i++) { 
-        count += sdist.at(i)*1;
+/*
+    ///normalize by finding and dividing all bins by area
+    int area = 0;
+    for(int i = 0; i < sdist.size(); i++) { ///area = sum of number of counts in each bin * bin size (1)
+        area = area + sdist.at(i)*1;
     }
     for(int i = 0; i < sdist.size(); i++) {
-        sdist.at(i) /= count; ///divide all bins by area
+        sdist.at(i) = sdist.at(i) / area; ///divide all bins by area
         //cout << sdist.at(i);
-    }
+    } */
     return sdist;
 }
 
