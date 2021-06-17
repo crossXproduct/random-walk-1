@@ -5,11 +5,9 @@
 #include <cmath>
 #include <vector>
 #include <ctime>
-//#include "matplotlib-cpp-master/matplotlibcpp.h"
 #include "Distribution.h"
 
 using namespace std;
-//namespace plt = matplotlibcpp;
 
 ///FUNCTION DECLARATIONS (DEFINITIONS BELOW MAIN)
 void runSpecs(int &num_histories, int &num_steps); //Process user input for number of runs and steps per run
@@ -44,7 +42,8 @@ void history(int num_steps, string filename) {
     ///Generate
     int step = 0;
     for(int i = 0; i < num_steps; i++){
-        step = rand() % 1 - 1;
+        step = rand() % 2 - 1;
+        //step /= 2;
         file << step << endl;
     }
     ///Close file stream
@@ -79,8 +78,8 @@ string getFilename() {
         fullname = "history" + to_string(number1) + to_string(number2) + ".txt";
         name.open(fullname);
 
-    } while(name.peek() != EOF); //if file is not blank (i.e. already exists), try again
-    
+    } while(name.peek() != EOF); //if file is NOT blank, try again
+
     name.close();
     return fullname;
 }
