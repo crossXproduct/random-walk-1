@@ -22,7 +22,7 @@ int main() {
     int num_histories;
     int num_steps;
     runSpecs(num_histories, num_steps);
-    //recordHistories(num_histories, num_steps);
+    recordHistories(num_histories, num_steps);
     return 0;
 } ///main
 
@@ -52,20 +52,35 @@ void history(int num_steps, string filename) {
 }
 
 void recordHistories(int num_histories, int num_steps) {
-    for(int i; i <= num_histories; i++) {
+    for(int i = 0; i < num_histories; i++) {
         history(num_steps, getFilename());
     }
 }
 
 string getFilename() {
     ifstream name;
-    char number = '0';
+    char number1 = ' ' - 32; //ASCII number 0
+    char number2 = ' ' - 32;
     string fullname = "";
+
     do { //Search for filename that does not yet exist, and create the file
-        fullname = "history" + to_string(number) + ".txt";
+
+        if(name.is_open()) {
+            name.close();
+            name.clear();
+        }
+
+        if(number2 == 9) {
+            number1++;
+            number2 = 0;
+            } 
+        else number2++;
+
+        fullname = "history" + to_string(number1) + to_string(number2) + ".txt";
         name.open(fullname);
-        number++;
-    } while(!name.eof()); //if file is not blank (i.e. already exists), try again
+
+    } while(name.peek() != EOF); //if file is not blank (i.e. already exists), try again
+    
     name.close();
     return fullname;
 }
