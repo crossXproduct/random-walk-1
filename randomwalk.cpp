@@ -37,7 +37,7 @@ void history(int num_steps, string filename) {
     file.open(filename);
 
     ///Seed random number generator
-    srand(time(0));
+    //srand(time(0));
 
     ///Generate
     int step = 0;
@@ -52,6 +52,7 @@ void history(int num_steps, string filename) {
 
 void recordHistories(int num_histories, int num_steps) {
     for(int i = 0; i < num_histories; i++) {
+        srand(i);
         history(num_steps, getFilename());
     }
 }
