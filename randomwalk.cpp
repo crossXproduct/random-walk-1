@@ -21,7 +21,7 @@ Distribution buildFsThy(int steps); ///Build theoretical self-intermediate scatt
 int main() {
     int steps;
     int runs;
-    istribution m_square, m_square_thy;
+    Distribution m_square, m_square_thy;
     Distribution sdist, sdist_thy;
     Distribution tdist, tdist_thy;
     Distribution f_s, f_s_thy;
@@ -29,12 +29,21 @@ int main() {
     return 0;
 } ///main
 
-void runSpecs(int &steps, int &runs) { ///Prompt for & update values of steps and runs
+void runSpecs(int &steps, int &runs) {
     //..
 }
 
-void history(int steps) { ///Generate a single history
-    //..
+void history(int steps) {
+    vector <double> runData;
+    srand(time(0));
+    double step = 0.00;
+    for(int i = 0; i < steps; i++){
+        step = rand() % 1;
+        if(step >= 0.5) {
+            step = 1;
+        }
+        else step = -1;
+    }
 }
 
 ///Computes quantities using data from successive runs
