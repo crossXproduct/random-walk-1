@@ -37,8 +37,10 @@ int main() {
     // Declare variables
     int t1, t2, t3; // Three times at which to evaluate the spatial probability distribution
     double q1, q2, q3; // Three qs at which to evaluate self-intermediate scattering function
-    int t; // Number of timesteps in each history ***NEEDS TO BE DETERMINED***
-    int name, startname, endname; // Number of first and last data file to process, in numerical order
+    int runs = 0; // Number of histories, incremented by getData()
+    int t; // Number of timesteps in each history
+    string filename = "";
+    int startname, endname; // Number of first and last data file to process, in numerical order
     vector<double> history; // Vector version of current data file
     ifstream file; // Data file currently being read
 
@@ -80,8 +82,6 @@ int main() {
     cin >> q1 >> q2 >> q3;
 
     // Build data distributions
-    int runs = 0;
-    string filename = "";
     do {
         if(startname < 10) {
             filename = "history0" + to_string(startname) + ".txt";
@@ -100,7 +100,7 @@ int main() {
         buildFs(f_s_q1, history, q1, runs);
         startname++;
         runs++;
-    } while(name < endname);
+    } while(startname < endname);
 
     // Build theoretical distributions
     buildMSquareThy(mean_squares_thy, t);
