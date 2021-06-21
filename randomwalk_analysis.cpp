@@ -20,12 +20,12 @@
 using namespace std;
 
 // File input
-ifstream getData(string filename); //Return input file stream
+vector<double> getData(string filename); //Return input file stream
 
 // Update distributions
 void buildMSquare(vector<double> &mean_squares, vector<double> dataRun, int runs); // Build mean square displacement wrt time
 void buildPDist(vector<double> &p_dist, int t, vector<double> dataRun);
-void buildFs(vector<double> &f_s, double q, vector<double> dataRun);
+void buildFs(vector<double> &f_s, vector<double> dataRun, double q, int runs);
 void buildMSquareThy(vector<double> &mean_squares_thy, int t); // Build theoretical mean square displacement wrt time
 void buildPDistThy(vector<double> &p_dist_thy, int t); // Build theoretical space prob. dist.
 void buildFsThy(vector<double> &f_s_thy, int t, int q); // Build theoretical self-intermediate scattering function wrt time
@@ -39,6 +39,7 @@ int main() {
     double q1, q2, q3; // Three qs at which to evaluate self-intermediate scattering function
     int t; // Number of timesteps in each history ***NEEDS TO BE DETERMINED***
     int name, startname, endname; // Number of first and last data file to process, in numerical order
+    vector<double> history; // Vector version of current data file
     ifstream file; // Data file currently being read
 
     // DATA
@@ -68,7 +69,8 @@ int main() {
     //Take user input: t and q values, start and end data files
     cout << "Enter number of first datafile (e.g. \"01\" for history01.txt): ";
     cin >> startname;
-    filename = "history" + startname + ".txt";
+    string filename = "history" + startname;
+    filename += ".txt";
 
     cout << "Enter number of last datafile (e.g. \"10\" for history10.txt): ";
     cin >> endname;
@@ -83,15 +85,15 @@ int main() {
     int runs = 0;
     do {
         history = getData(filename);
-        buildMSquare(mean_squares, file, runs);
-        buildPDist(p_dist_t1, t1, file);
-        buildPDist(p_dist_t2, t2, file);
-        buildPDist(p_dist_t3, t3, file);
-        buildFs(f_s_q1, q1, file);
-        buildFs(f_s_q2, q2, file);
-        buildFs(f_s_q3, q3, file);
+        buildMSquare(mean_squares, history, runs);
+        buildPDist(p_dist_t1, t1, history);
+        buildPDist(p_dist_t2, t2, history);
+        buildPDist(p_dist_t3, t3, history);
+        buildFs(f_s_q1, history, q1, runs);
+        buildFs(f_s_q1, history, q1, runs);
+        buildFs(f_s_q1, history, q1, runs);
         name++;
-        count++
+        runs++;
     } while(name < endname);
 
     // Build theoretical distributions
@@ -118,6 +120,7 @@ vector<double> getData(string filename) {
     }
 
     // Fill or overwrite vector
+    int r_total = 0;
     int count = 0;
     while(!file.eof()) {
         int r;
@@ -126,12 +129,12 @@ vector<double> getData(string filename) {
             cout << "Error: unable to read file";
         }
         r_total += r; // Calculate total displacement
-        if(count >= mean_squares.size()) {
+        if(count >= dataRun.size()) { // Expand vector if filling for the first time
             dataRun.push_back(r_total); // Push to vector
         }
         else {
-            dataRun.at(count) = r_total;
-            dataRun.shrink_to_fit();
+            dataRun.at(count) = r_total; // Replace data if refilling with new data
+            //dataRun.shrink_to_fit();
         }
         count++;
     }
@@ -187,22 +190,26 @@ void buildPDist(vector<double> &p_dist, int t, vector<double> dataRun) {
     }
 }
 
-vector<double> buildFs(vector<double> &f_s, double q, vector<double> dataRun) {
-    //..
+void buildFs(vector<double> &f_s, vector<double> dataRun, double q, int runs) {
+    double r_total;
+    for(int i = 0; i < f_s.size(); i++) {
+        r_total = dataRun.at(i);
+        f_s.at(i) = cos(q*r_total)/runs;
+    }
     //return..
 }
 
-vector<double> buildMSquareThy(vector<double> &mean_squares_thy, int t) { 
+void buildMSquareThy(vector<double> &mean_squares_thy, int t) { 
     //..
     //return...
 }
 
-vector<double> buildPDistThy(vector<double> &p_dist_thy, int t) {
+void buildPDistThy(vector<double> &p_dist_thy, int t) {
     //..
     //return..
 }
 
-vector<double> buildFsThy(vector<double> &f_s_thy, int t, int q) {
+void buildFsThy(vector<double> &f_s_thy, int t, int q) {
     //..
     //return..
 }
