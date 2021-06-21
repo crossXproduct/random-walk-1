@@ -5,7 +5,6 @@
 #include <cmath>
 #include <vector>
 #include <ctime>
-#include "Distribution.h"
 
 using namespace std;
 
