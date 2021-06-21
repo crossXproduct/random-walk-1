@@ -20,7 +20,7 @@
 using namespace std;
 
 // File input
-vector<double> getData(string filename); //Return input file stream
+vector<double> getData(string filename, int &steps); //Return input file stream
 
 // Update distributions
 void buildMSquare(vector<double> &mean_squares, vector<double> dataRun, int runs); // Build mean square displacement wrt time
@@ -84,7 +84,7 @@ int main() {
     // Build data distributions
     int runs = 0;
     do {
-        history = getData(filename);
+        history = getData(filename, t);
         buildMSquare(mean_squares, history, runs);
         buildPDist(p_dist_t1, t1, history);
         buildPDist(p_dist_t2, t2, history);
@@ -108,7 +108,7 @@ int main() {
     return 0;
 }
 
-vector<double> getData(string filename) {
+vector<double> getData(string filename, int &steps) {
     ifstream file;
     vector<double> dataRun;
 
@@ -121,7 +121,7 @@ vector<double> getData(string filename) {
 
     // Fill or overwrite vector
     int r_total = 0;
-    int count = 0;
+    steps = 0;
     while(!file.eof()) {
         int r;
         file >> r; // Read in one step
@@ -129,14 +129,14 @@ vector<double> getData(string filename) {
             cout << "Error: unable to read file";
         }
         r_total += r; // Calculate total displacement
-        if(count >= dataRun.size()) { // Expand vector if filling for the first time
+        if(steps >= dataRun.size()) { // Expand vector if filling for the first time
             dataRun.push_back(r_total); // Push to vector
         }
         else {
-            dataRun.at(count) = r_total; // Replace data if refilling with new data
-            //dataRun.shrink_to_fit();
+            dataRun.at(steps) = r_total; // Replace data if refilling with new data
+            //dataRun.shrink_to_fit(); // Only needed if datasets have differing number of steps
         }
-        count++;
+        steps++;
     }
     return dataRun;
 }
