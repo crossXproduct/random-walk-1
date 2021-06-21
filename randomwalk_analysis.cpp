@@ -67,10 +67,8 @@ int main() {
     vector<double> f_s_thy_q3; // at q = q3
 
     //Take user input: t and q values, start and end data files
-    cout << "Enter number of first datafile (e.g. \"01\" for history01.txt): ";
+    cout << "Enter number of first datafile (e.g. \"1\" for history01.txt): ";
     cin >> startname;
-    string filename = "history" + startname;
-    filename += ".txt";
 
     cout << "Enter number of last datafile (e.g. \"10\" for history10.txt): ";
     cin >> endname;
@@ -83,7 +81,15 @@ int main() {
 
     // Build data distributions
     int runs = 0;
+    string filename = "";
     do {
+        if(startname < 10) {
+            filename = "history0" + to_string(startname) + ".txt";
+        }
+        else {
+            filename = "history" + to_string(startname) + ".txt";
+        }
+        
         history = getData(filename, t);
         buildMSquare(mean_squares, history, runs);
         buildPDist(p_dist_t1, t1, history);
@@ -92,7 +98,7 @@ int main() {
         buildFs(f_s_q1, history, q1, runs);
         buildFs(f_s_q1, history, q1, runs);
         buildFs(f_s_q1, history, q1, runs);
-        name++;
+        startname++;
         runs++;
     } while(name < endname);
 
