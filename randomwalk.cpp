@@ -36,9 +36,6 @@ void history(int num_steps, string filename) {
     ofstream file;
     file.open(filename);
 
-    ///Seed random number generator
-    //srand(time(0));
-
     ///Generate
     int step = 0;
     for(int i = 0; i < num_steps; i++){

@@ -20,18 +20,18 @@
 using namespace std;
 
 // File input
-ifstream getfile(string filename); //Return input file stream
+ifstream getData(string filename); //Return input file stream
 
 // Update distributions
-void buildRSquare(vector<double> &r_square, ifstream file); // Build mean square displacement wrt time
-void buildPDist(vector<double> &p_dist, int t, ifstream file);
-void buildFs(vector<double> &f_s, double q, ifstream file);
-vector<double> buildRSquareThy(vector<double> &r_square_thy, int t); // Build theoretical mean square displacement wrt time
-vector<double> buildPDistThy(vector<double> &p_dist_thy, int t); // Build theoretical space prob. dist.
-vector<double> buildFsThy(vector<double> &f_s_thy, int t, int q); // Build theoretical self-intermediate scattering function wrt time
+void buildMSquare(vector<double> &mean_squares, vector<double> dataRun, int runs); // Build mean square displacement wrt time
+void buildPDist(vector<double> &p_dist, int t, vector<double> dataRun);
+void buildFs(vector<double> &f_s, double q, vector<double> dataRun);
+void buildMSquareThy(vector<double> &mean_squares_thy, int t); // Build theoretical mean square displacement wrt time
+void buildPDistThy(vector<double> &p_dist_thy, int t); // Build theoretical space prob. dist.
+void buildFsThy(vector<double> &f_s_thy, int t, int q); // Build theoretical self-intermediate scattering function wrt time
 
 // Plotting
-void makePlots(vector<double> data, vector<double> theory); //Build a single plot of data alongside theoretical function
+//void makePlots(vector<double> data, vector<double> theory); //Build a single plot of data alongside theoretical function
 
 int main() {
     // Declare variables
@@ -43,7 +43,7 @@ int main() {
 
     // DATA
     // Mean square displacement as a function of time
-    vector<double> r_square;
+    vector<double> mean_squares;
     // Probability distributions
     vector<double> p_dist_t1; // as a function of position at t1
     vector<double> p_dist_t2; // as a function of position at t2
@@ -55,7 +55,7 @@ int main() {
 
     // THEORY
     // Mean square displacement as a function of time
-    vector<double> r_square_thy;
+    vector<double> mean_squares_thy;
     // Probability distributions as a function of position
     vector<double> p_dist_thy_t1; // at t1
     vector<double> p_dist_thy_t2; // at t2
@@ -66,7 +66,7 @@ int main() {
     vector<double> f_s_thy_q3; // at q = q3
 
     //Take user input: t and q values, start and end data files
-    cout << "Enter number of first datafile (e.g. \"1\" for history1.txt): ";
+    cout << "Enter number of first datafile (e.g. \"01\" for history01.txt): ";
     cin >> startname;
     filename = "history" + startname + ".txt";
 
@@ -80,9 +80,10 @@ int main() {
     cin >> q1 >> q2 >> q3;
 
     // Build data distributions
+    int runs = 0;
     do {
-        file = getfile(filename);
-        buildRSquare(r_square, file);
+        history = getData(filename);
+        buildMSquare(mean_squares, file, runs);
         buildPDist(p_dist_t1, t1, file);
         buildPDist(p_dist_t2, t2, file);
         buildPDist(p_dist_t3, t3, file);
@@ -90,10 +91,11 @@ int main() {
         buildFs(f_s_q2, q2, file);
         buildFs(f_s_q3, q3, file);
         name++;
+        count++
     } while(name < endname);
 
     // Build theoretical distributions
-    buildRSquareThy(r_square_thy, t);
+    buildMSquareThy(mean_squares_thy, t);
     buildPDistThy(p_dist_thy_t1, t1);
     buildPDistThy(p_dist_thy_t2, t2);
     buildPDistThy(p_dist_thy_t3, t3);
@@ -104,30 +106,93 @@ int main() {
     return 0;
 }
 
-ifstream getfile(string filename) {
+vector<double> getData(string filename) {
     ifstream file;
+    vector<double> dataRun;
+
+    // Open file stream
     file.open(filename);
     if(file.fail()) {
         cout << "File " << filename << " could not be opened.";
         file.clear();
     }
+
+    // Fill or overwrite vector
+    int count = 0;
+    while(!file.eof()) {
+        int r;
+        file >> r; // Read in one step
+        if(file.fail()) {
+            cout << "Error: unable to read file";
+        }
+        r_total += r; // Calculate total displacement
+        if(count >= mean_squares.size()) {
+            dataRun.push_back(r_total); // Push to vector
+        }
+        else {
+            dataRun.at(count) = r_total;
+            dataRun.shrink_to_fit();
+        }
+        count++;
+    }
+    return dataRun;
 }
 
-vector<double> buildRSquare(vector<double> &r_square, ifstream file) {
-    //return..
+void buildMSquare(vector<double> &mean_squares, vector<double> dataRun, int runs) {
+    double r_square;
+
+    // Build distribution
+    for(int i = 0; i < dataRun.size(); i++) { 
+        r_square = pow(dataRun.at(i), 2); // Calculate square
+        if(i >= mean_squares.size()) {
+            mean_squares.push_back(r_square); // Expand vector if building for first time, & push r_square to vector
+        }
+        else {
+            mean_squares.at(i) += r_square; // Push to vector
+        }
+    }
+
+    // Calculate averages
+    for(int i = 0; i < mean_squares.size(); i++) {
+        mean_squares.at(i) /= runs; // Update vector
+    }
 }
 
-vector<double> buildPDist(vector<double> &p_dist, int t, ifstream file) {
+void buildPDist(vector<double> &p_dist, int t, vector<double> dataRun) {
+    int r_total;
+
+    // Build distribution
+    for(int i = 0; i < dataRun.size(); i++) { 
+        r_total = dataRun.at(i); // Set total displacement
+        while(r_total >= p_dist.size()) {
+            p_dist.push_back(0.0); // Expand vector so that bins accommodate r_total
+        }
+        if(r_total > 0) {
+            p_dist.at(r_total) += 1.0; // Increment appropriate bin
+        }
+        //IGNORE r_totals less than 0...this assumes a symmetric distribution
+        //OR could shift distribution to accommodate increasingly negative values
+    }
+
+    // Normalize
+    int max = 0;
+    for(int i = 0; i < p_dist.size(); i++) { 
+        if (p_dist.at(i) > max) {
+            max = p_dist.at(i);
+        }
+    }
+    for(int i = 0; i < p_dist.size(); i++) {
+        p_dist.at(i) /= max;
+        //cout << p_dist.at(i);
+    }
+}
+
+vector<double> buildFs(vector<double> &f_s, double q, vector<double> dataRun) {
     //..
     //return..
 }
 
-vector<double> buildFs(vector<double> &f_s, double q, ifstream file) {
-    //..
-    //return..
-}
-
-vector<double> buildRSquareThy(vector<double> &r_square_thy, int t) { 
+vector<double> buildMSquareThy(vector<double> &mean_squares_thy, int t) { 
     //..
     //return...
 }
