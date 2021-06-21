@@ -38,8 +38,7 @@ void history(int num_steps, string filename) {
     ///Generate
     int step = 0;
     for(int i = 0; i < num_steps; i++){
-        step = rand() % 2 - 1;
-        //step /= 2;
+        step = (rand() % 2) * 2 - 1;
         file << step << endl;
     }
     ///Close file stream
@@ -61,7 +60,9 @@ string getFilename() {
 
     do { //Search for filename that does not yet exist, and create the file
 
-        if(name.is_open()) {
+        
+
+        if(!name.eof()) {
             name.close();
             name.clear();
         }
@@ -72,7 +73,7 @@ string getFilename() {
             } 
         else number2++;
 
-        fullname = "history" + to_string(number1) + to_string(number2) + ".txt";
+        fullname = "history" + to_string(number1) + to_string(number2) + ".dat";
         name.open(fullname);
 
     } while(name.peek() != EOF); //if file is NOT blank, try again

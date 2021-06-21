@@ -69,29 +69,33 @@ int main() {
     vector<double> f_s_thy_q3; // at q = q3
 
     //Take user input: t and q values, start and end data files
-    cout << "Enter number of first datafile (e.g. \"1\" for history01.txt): ";
+    cout << "Enter number of first datafile (e.g. \"1\" for history01.dat): ";
     cin >> startname;
 
-    cout << "Enter number of last datafile (e.g. \"10\" for history10.txt): ";
+    cout << "Enter number of last datafile (e.g. \"10\" for history10.dat): ";
     cin >> endname;
 
-    cout << "Enter three successive time values (assuming t_0 = 0 s) at which to evaluate probability distribution: ";
-    cin >> t1 >> t2 >> t3;
+    cout << "Enter three successive time values (assuming t_0 = 0 s) at which to evaluate probability distribution: \n";
+    cin >> t1;
+    cin >> t2;
+    cin >> t3;
 
-    cout << "Enter three successive q values at which to evaluate self-intermediate scattering function: ";
-    cin >> q1 >> q2 >> q3;
+    cout << "Enter three successive (int or decimal) q values at which to evaluate self-intermediate scattering function: \n";
+    cin >> q1;
+    cin >> q2;
+    cin >> q3;
 
     // Build data distributions
     do {
         if(startname < 10) {
-            filename = "history0" + to_string(startname) + ".txt";
+            filename = "history0" + to_string(startname) + ".dat";
         }
         else {
-            filename = "history" + to_string(startname) + ".txt";
+            filename = "history" + to_string(startname) + ".dat";
         }
         
         history = getData(filename, t);
-        buildMSquare(mean_squares, history, runs);
+        /*buildMSquare(mean_squares, history, runs);
         buildPDist(p_dist_t1, t1, history);
         buildPDist(p_dist_t2, t2, history);
         buildPDist(p_dist_t3, t3, history);
@@ -100,9 +104,13 @@ int main() {
         buildFs(f_s_q1, history, q1, runs);
         startname++;
         runs++;
+        */
+        for(int i =0; i < history.size(); i++)
+            cout << history.at(i) << endl;
     } while(startname < endname);
 
     // Build theoretical distributions
+    /*
     buildMSquareThy(mean_squares_thy, t);
     buildPDistThy(p_dist_thy_t1, t1);
     buildPDistThy(p_dist_thy_t2, t2);
@@ -110,7 +118,7 @@ int main() {
     buildFsThy(f_s_thy_q1, t, q1);
     buildFsThy(f_s_thy_q2, t, q2);
     buildFsThy(f_s_thy_q3, t, q3);
-    
+    */
     return 0;
 }
 
@@ -121,8 +129,10 @@ vector<double> getData(string filename, int &steps) {
     // Open file stream
     file.open(filename);
     if(file.fail()) {
-        cout << "File " << filename << " could not be opened.";
+        cout << "Error: file " << filename << " could not be opened.\n";
         file.clear();
+        string s;
+        file >> s;
     }
 
     // Fill or overwrite vector
@@ -132,7 +142,10 @@ vector<double> getData(string filename, int &steps) {
         int r;
         file >> r; // Read in one step
         if(file.fail()) {
-            cout << "Error: unable to read file";
+            cout << "Error: unable to read file\n" << filename;
+            file.clear();
+            string s;
+            file >> s;
         }
         r_total += r; // Calculate total displacement
         if(steps >= dataRun.size()) { // Expand vector if filling for the first time
