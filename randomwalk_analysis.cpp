@@ -35,8 +35,10 @@ using namespace std;
 vector<double> getData(string filename, int &steps) {
     ifstream file; // Create file stream
     vector<double> dataRun; // Create data vector
+    double r_total; // Total displacement
 
     file.open(filename); // Open file stream
+
     if(!file.is_open()) { // Check for open failure
         cout << "Error: file " << filename << " could not be opened.\n";
         file.clear();
@@ -44,10 +46,10 @@ vector<double> getData(string filename, int &steps) {
         file >> s;
     }
 
-    steps = 0; // Number of steps
-    int r_total; // Total displacement
-
-    while(file >> r_total) { // Fill or overwrite vector
+    steps = 0;
+    while(!file.eof()) { // Fill vector with data
+        steps++;
+        file >> r_total;        
         if(steps >= dataRun.size()) { // Expand vector if filling for the first time
             dataRun.push_back(r_total); // Push to vector
         }
@@ -55,16 +57,15 @@ vector<double> getData(string filename, int &steps) {
             dataRun.at(steps) = r_total; // Replace data if refilling with new data
             //dataRun.shrink_to_fit(); // Only needed if datasets have differing number of steps
         }
-        cout << dataRun.at(steps);
-        steps++; // Increment number of steps
     }
 
-    if(file.fail()) {
+    if(!file.eof() && file.fail()) {
             cout << "Error: unable to read file\n" << filename;
             file.clear();
             string s;
             file >> s;
-        }
+    }
+
     file.close();
     return dataRun;
 }
@@ -238,7 +239,7 @@ int main() {
     double d; // Diffusion coefficient
 
     int runs; // Number of histories
-    int steps; // Number of timesteps in each history, incremented by getData()
+    int steps; // Number of timesteps in each history, initialized by getData()
 
     string filename = "";
     int startname, endname; // Number of first and last data file to process, in numerical order
@@ -310,18 +311,23 @@ int main() {
         buildPDist(p_dist_t1, history, t3);
         buildFs(f_s_q1, history, q1, runs);
         buildFs(f_s_q1, history, q1, runs);
-        buildFs(f_s_q1, history, q1, runs);
+        buildFs(f_s_q1, history, q1, runs);*/
         startname++;
         runs++;
-        */
-        for(int i =0; i < history.size(); i++)
-            cout << history.at(i) << endl;
-    } while(startname < endname);
+        
+        for(int i =0; i < history.size(); i++) //for debugging
+            cout << history.at(i);
+        cout << endl;
+    } while(startname <= endname);
 
     // Build theoretical distributions
-    /*
-    buildMSquareThy(mean_squares_thy, d, steps);
-    buildPDistThy(p_dist_thy_t1, d, t1);
+    
+    cout << endl; //for debugging
+    buildMSquareThy(mean_squares_thy, d, runs, steps); //for debugging
+    for(int i =0; i < steps; i++)
+        cout << mean_squares_thy.at(i);
+    cout << endl;
+    /*buildPDistThy(p_dist_thy_t1, d, t1);
     buildPDistThy(p_dist_thy_t2, d, t2);
     buildPDistThy(p_dist_thy_t3, d, t3);
     buildFsThy(f_s_thy_q1, q1, d, steps);
