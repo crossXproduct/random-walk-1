@@ -109,25 +109,26 @@ vector<double> buildMSquare(vector<double> dataRun, int runs) {
  * @param dataRun - total displacements for a single history (vector double)
  * @return void
  */
-vector<double> buildPDist(vector<double> dataRun) {
+vector<double> buildPDist(vector<double> dataRun, int t) {
     vector<double> p_dist;
     // Declare total displacement
     int r_total;
     // Create vector elements
-    for(int i = 0; i < 2 * dataRun.size(); i++) { // Positive and negative r_totals, need 2x space
+    for(int i = 0; i < 2 * t; i++) { // Positive and negative r_totals, need 2x space
         p_dist.push_back(0.0);
     }
     // Fill elements
-    for(int i = 0; i < 2 * dataRun.size(); i++) {  
+    for(int i = 0; i < dataRun.size(); i++) {  
         r_total = dataRun.at(i); // Set total displacement
-        p_dist.at(r_total + dataRun.size()) += 1.0; // Shifted to accommodate negative values
+        p_dist.at(r_total + t) += 1.0; // Shifted to accommodate negative values
     }
+    p_dist.shrink_to_fit();
 
     // Normalize
     int max = 0;
-    for(int i = dataRun.size(); i < 2 * dataRun.size(); i++) { // Find max value
-        if (p_dist.at(i) > max) {
-            max = p_dist.at(i);
+    for(int i = t; i < 2 * t; i++) { // Find max value
+        if (p_dist.at(i - t) > max) {
+            max = p_dist.at(i - t);
         }
     }
     for(int i = 0; i < 2 * dataRun.size(); i++) { // Divide all bins by max
@@ -285,21 +286,18 @@ int main() {
         }
         
         vector<double> history = getData(filename, steps); // A single thermal history
-       /* vector<double> mean_squares = buildMSquare(history, runs); // Mean square displacement as a function of time
+       vector<double> mean_squares = buildMSquare(history, runs); // Mean square displacement as a function of time
         vector<double> p_dist_t1 = buildPDist(history, t1); // Probability distributions as functions of position at time t
         vector<double> p_dist_t2 = buildPDist(history, t2);
         vector<double> p_dist_t3 = buildPDist(history, t3);
         vector<double> f_s_q1 = buildFs(history, q1, runs);
         vector<double> f_s_q2 = buildFs(history, q2, runs);
-        vector<double> f_s_q3 = buildFs(history, q3, runs);*/
+        vector<double> f_s_q3 = buildFs(history, q3, runs);
         startfile++;
-
     } while(startfile <= endfile);
 
     //THEORY
     // Build theoretical distributions
-    
-    cout << endl; //for debugging
     vector<double> mean_squares_thy = buildMSquareThy(d, runs, steps); // Mean square displacement as a function of time
     vector<double> p_dist_thy_t1 = buildPDistThy(d, t1, steps); // Probability distributions as functions of position at time t
     vector<double> p_dist_thy_t2 = buildPDistThy(d, t2, steps);
@@ -307,10 +305,6 @@ int main() {
     vector<double> f_s_thy_q1 = buildFsThy(q1, d, steps); // Self-intermediate scattering functions as a function of time
     vector<double> f_s_thy_q2 = buildFsThy(q2, d, steps);
     vector<double> f_s_thy_q3 = buildFsThy(q3, d, steps);
-
-    for(int i =0; i < f_s_thy_q1.size(); i++) //for debugging
-        cout << f_s_thy_q1.at(i);
-    cout << endl;
 
     return 0;
 } ///MAIN
