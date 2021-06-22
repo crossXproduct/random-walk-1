@@ -172,7 +172,7 @@ void buildFs(vector<double> &f_s, vector<double> dataRun, double q, int runs) {
  * @return void
  */
 void buildMSquareThy(vector<double> &mean_squares_thy, int d, int runs, int steps) { 
-    for(int i = 1; i <= steps; i++) {
+    for(int i = 0; i <= steps; i++) {
         double m_square = 2.0 * d * i / runs;
         if(i >= mean_squares_thy.size())
             mean_squares_thy.push_back(m_square);
@@ -215,7 +215,7 @@ void buildPDistThy(vector<double> &p_dist_thy, int d, int t, int steps) {
  * @return void
  */
 void buildFsThy(vector<double> &f_s_thy, int q, int d, int steps) {
-    for(int i = 0; i < steps; i++) {
+    for(int i = 0; i <= steps; i++) {
         double f_s_value = exp(-pow(q, 2) * d * i);
         if(i >= f_s_thy.size())
             f_s_thy.push_back(f_s_value);
@@ -232,17 +232,17 @@ void plot(vector<double> dist){}
 int main() {
 
 
-    //DECLARE VARIABLES
+    //VARIABLES
 
     int t1, t2, t3; // Three times at which to evaluate the spatial probability distribution
     double q1, q2, q3; // Three qs at which to evaluate self-intermediate scattering function
     double d; // Diffusion coefficient
 
-    int runs; // Number of histories
+    int runs; // Number of histories, initialized from user input
     int steps; // Number of timesteps in each history, initialized by getData()
 
     string filename = "";
-    int startname, endname; // Number of first and last data file to process, in numerical order
+    int startfile, endfile; // Number of first and last data file to process, in numerical order
     vector<double> history; // Vector version of current data file
     ifstream file; // Data file currently being read
 
@@ -275,12 +275,12 @@ int main() {
 
     //Take user input: steps and q values, start and end data files
     cout << "Enter number of first datafile (e.g. \"1\" for history01.dat): ";
-    cin >> startname;
+    cin >> startfile;
 
     cout << "Enter number of last datafile (e.g. \"10\" for history10.dat): ";
-    cin >> endname;
+    cin >> endfile;
 
-    runs = endname - startname + 1;
+    runs = endfile - startfile + 1;
 
     cout << "Enter three successive time values (assuming t_0 = 0 s) at which to evaluate probability distribution: \n";
     cin >> t1;
@@ -297,11 +297,11 @@ int main() {
 
     // Build data distributions
     do {
-        if(startname < 10) {
-            filename = "history0" + to_string(startname) + ".dat";
+        if(startfile < 10) {
+            filename = "history0" + to_string(startfile) + ".dat";
         }
         else {
-            filename = "history" + to_string(startname) + ".dat";
+            filename = "history" + to_string(startfile) + ".dat";
         }
         
         history = getData(filename, steps);
@@ -312,21 +312,22 @@ int main() {
         buildFs(f_s_q1, history, q1, runs);
         buildFs(f_s_q1, history, q1, runs);
         buildFs(f_s_q1, history, q1, runs);*/
-        startname++;
-    } while(startname <= endname);
+        startfile++;
+
+    } while(startfile <= endfile);
 
     // Build theoretical distributions
     
     cout << endl; //for debugging
     buildMSquareThy(mean_squares_thy, d, runs, steps);
     buildPDistThy(p_dist_thy_t1, d, t1, steps);
-    for(int i =0; i < p_dist_thy_t1.size(); i++) //for debugging
-        cout << p_dist_thy_t1.at(i);
+    buildPDistThy(p_dist_thy_t2, d, t2, steps);
+    buildPDistThy(p_dist_thy_t3, d, t3, steps);
+    buildFsThy(f_s_thy_q1, q1, d, steps);
+    for(int i =0; i < f_s_thy_q1.size(); i++) //for debugging
+        cout << f_s_thy_q1.at(i);
     cout << endl;
     /*
-    buildPDistThy(p_dist_thy_t2, d, t2);
-    buildPDistThy(p_dist_thy_t3, d, t3);
-    buildFsThy(f_s_thy_q1, q1, d, steps);
     buildFsThy(f_s_thy_q2, q2, d, steps);
     buildFsThy(f_s_thy_q3, q3, d, steps);
     */
