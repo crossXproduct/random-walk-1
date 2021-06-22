@@ -235,10 +235,13 @@ vector<double> buildFsThy(int q, int d, int steps) {
     return f_s_thy;
 }
 
-void plot(vector<double> dist){}
-// >>> Need function for plotting <<<
-
-
+void printDistribution(vector<double> dist, string name) {
+    ofstream printfile;
+    printfile.open(name + ".dat");
+    for(int i = 0; i < dist.size(); i++) {
+        printfile << dist.at(i) << endl;
+    }
+}
 
 ///MAIN PROGRAM///
 int main() {
@@ -256,6 +259,7 @@ int main() {
     //initialized by user input and updated by main program
     int startfile, endfile; // Number of first and last data file to process, in numerical order
     ifstream file; // File input stream for reading data
+
 
     //INPUT
     //Initialize t1..t3, q1..q3, runs, and d
@@ -275,8 +279,9 @@ int main() {
     cout << "Enter diffusion coefficient: ";
     cin >> d;
 
+
     //DATA
-    // Build data distributions
+    // Build & print data distributions
     do {
         if(startfile < 10) {
             filename = "history0" + to_string(startfile) + ".dat";
@@ -285,26 +290,48 @@ int main() {
             filename = "history" + to_string(startfile) + ".dat";
         }
         
-        vector<double> history = getData(filename, steps); // A single thermal history
-       vector<double> mean_squares = buildMSquare(history, runs); // Mean square displacement as a function of time
-        vector<double> p_dist_t1 = buildPDist(history, t1); // Probability distributions as functions of position at time t
+        // A single thermal history
+        vector<double> history = getData(filename, steps);
+        // Mean square displacement as a function of time
+        vector<double> mean_squares = buildMSquare(history, runs);
+        printDistribution(mean_squares, "mean_squares"); // Print to file
+        // Probability distributions as functions of position at time t
+        vector<double> p_dist_t1 = buildPDist(history, t1);
+        printDistribution(p_dist_t1, "p_dist_t1");
         vector<double> p_dist_t2 = buildPDist(history, t2);
+        printDistribution(p_dist_t2, "p_dist_t2");
         vector<double> p_dist_t3 = buildPDist(history, t3);
+        printDistribution(p_dist_t3, "p_dist_t3");
+        // Self-intermediate scattering functions as a function of time
         vector<double> f_s_q1 = buildFs(history, q1, runs);
+        printDistribution(f_s_q1, "f_s_q1");
         vector<double> f_s_q2 = buildFs(history, q2, runs);
+        printDistribution(f_s_q2, "f_s_q2");
         vector<double> f_s_q3 = buildFs(history, q3, runs);
-        startfile++;
+        printDistribution(f_s_q3, "f_s_q3");
+
+        startfile++; // Go to next datafile
     } while(startfile <= endfile);
 
     //THEORY
-    // Build theoretical distributions
-    vector<double> mean_squares_thy = buildMSquareThy(d, runs, steps); // Mean square displacement as a function of time
-    vector<double> p_dist_thy_t1 = buildPDistThy(d, t1, steps); // Probability distributions as functions of position at time t
+    // Build & print theoretical distributions
+    // Mean square displacement as a function of time
+    vector<double> mean_squares_thy = buildMSquareThy(d, runs, steps);
+    printDistribution(mean_squares_thy, "mean_squares_thy");
+    // Probability distributions as functions of position at time t
+    vector<double> p_dist_thy_t1 = buildPDistThy(d, t1, steps);
+    printDistribution(p_dist_thy_t1, "p_dist_thy_t1");
     vector<double> p_dist_thy_t2 = buildPDistThy(d, t2, steps);
+    printDistribution(p_dist_thy_t2, "p_dist_thy_t2");
     vector<double> p_dist_thy_t3 = buildPDistThy(d, t3, steps);
-    vector<double> f_s_thy_q1 = buildFsThy(q1, d, steps); // Self-intermediate scattering functions as a function of time
+    printDistribution(p_dist_thy_t3, "p_dist_thy_t3");
+    // Self-intermediate scattering functions as a function of time
+    vector<double> f_s_thy_q1 = buildFsThy(q1, d, steps);
+    printDistribution(f_s_thy_q1, "f_s_thy_q1");
     vector<double> f_s_thy_q2 = buildFsThy(q2, d, steps);
+    printDistribution(f_s_thy_q2, "f_s_thy_q2");
     vector<double> f_s_thy_q3 = buildFsThy(q3, d, steps);
+    printDistribution(f_s_thy_q3, "f_s_thy_q3");
 
     return 0;
 } ///MAIN
