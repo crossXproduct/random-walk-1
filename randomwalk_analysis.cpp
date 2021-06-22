@@ -192,13 +192,13 @@ void buildMSquareThy(vector<double> &mean_squares_thy, int d, int runs, int step
  * @param t - time in s at which to evaluate distribution (int)
  * @return void
  */
-void buildPDistThy(vector<double> &p_dist_thy, int d, int t) {
+void buildPDistThy(vector<double> &p_dist_thy, int d, int t, int steps) {
     double n = 1/sqrt(4 * M_PI * d * t);
-    for(int i = -t; i < t; i++) {
+    for(int i = (-steps * 2); i < (steps * 2); i++) {
         double pdist_value = n * exp(-pow(i, 2) / 4 / d / t);
-        if(i >= p_dist_thy.size())
+        if(i + (steps * 2) >= p_dist_thy.size())
             p_dist_thy.push_back(pdist_value);
-        else p_dist_thy.at(i+t) = pdist_value; // Origin will be shifted to right by t
+        else p_dist_thy.at(i + (steps * 2)) = pdist_value; // Origin will be shifted to right by t
     }
 }
 
@@ -313,20 +313,17 @@ int main() {
         buildFs(f_s_q1, history, q1, runs);
         buildFs(f_s_q1, history, q1, runs);*/
         startname++;
-        
-        for(int i =0; i < history.size(); i++) //for debugging
-            cout << history.at(i);
-        cout << endl;
     } while(startname <= endname);
 
     // Build theoretical distributions
     
     cout << endl; //for debugging
-    buildMSquareThy(mean_squares_thy, d, runs, steps); //for debugging
-    for(int i =0; i < steps; i++)
-        cout << mean_squares_thy.at(i);
+    buildMSquareThy(mean_squares_thy, d, runs, steps);
+    buildPDistThy(p_dist_thy_t1, d, t1, steps);
+    for(int i =0; i < p_dist_thy_t1.size(); i++) //for debugging
+        cout << p_dist_thy_t1.at(i);
     cout << endl;
-    /*buildPDistThy(p_dist_thy_t1, d, t1);
+    /*
     buildPDistThy(p_dist_thy_t2, d, t2);
     buildPDistThy(p_dist_thy_t3, d, t3);
     buildFsThy(f_s_thy_q1, q1, d, steps);
