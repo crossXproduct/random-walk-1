@@ -37,9 +37,11 @@ void history(int num_steps, string filename) {
 
     ///Generate
     int step = 0;
+    int r_total = 0;
     for(int i = 0; i < num_steps; i++){
         step = (rand() % 2) * 2 - 1;
-        file << step << endl;
+        r_total += step;
+        file << r_total << endl;
     }
     ///Close file stream
     file.close();
