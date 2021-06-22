@@ -172,8 +172,8 @@ void buildFs(vector<double> &f_s, vector<double> dataRun, double q, int runs) {
  * @return void
  */
 void buildMSquareThy(vector<double> &mean_squares_thy, int d, int runs, int steps) { 
-    for(int i = 0; i < steps; i++) {
-        double m_square = 2 * d * i / runs;
+    for(int i = 1; i <= steps; i++) {
+        double m_square = 2.0 * d * i / runs;
         if(i >= mean_squares_thy.size())
             mean_squares_thy.push_back(m_square);
         else mean_squares_thy.at(i) = m_square;
@@ -313,7 +313,6 @@ int main() {
         buildFs(f_s_q1, history, q1, runs);
         buildFs(f_s_q1, history, q1, runs);*/
         startname++;
-        runs++;
         
         for(int i =0; i < history.size(); i++) //for debugging
             cout << history.at(i);
