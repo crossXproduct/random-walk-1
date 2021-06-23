@@ -31,7 +31,7 @@ using namespace std;
  *                of lines in datafile (int)
  * @return dataRun - vector of total displacements, one per element (vector double)
  */
-vector<double> getData(string filename, int &steps) {
+vector<double> getData(string filename) {
     ifstream file; // Create file stream
     vector<double> dataRun; // Create data vector
     double r_total; // Total displacement
@@ -45,7 +45,7 @@ vector<double> getData(string filename, int &steps) {
         file >> s;
     }
 
-    steps = 0;
+    int steps = 0;
     while(!file.eof()) { // Fill vector with data
         steps++;
         file >> r_total;
@@ -81,19 +81,11 @@ vector<double> getData(string filename, int &steps) {
  * @param runs - number of histories to be analyzed, used for averaging (int)
  * @return void
  */
-vector<double> buildMSquare(vector<double> dataRun, int runs) {
-    vector<double> mean_squares;
-    double m_square;
-
-    // Build distribution
-    for(int i = 0; i < dataRun.size(); i++) {
+vector<double> buildMSquare(vector<double> &mean_squares, vector<double> dataRun, int runs, int steps) {
+    double m_square; // Mean square displacement
+    for(int i = 0; i < steps; i++) {
         m_square = pow(dataRun.at(i), 2) / runs; // Calculate square average
-        if(i >= mean_squares.size()) {
-            mean_squares.push_back(m_square); // Expand vector if building for first time, & push r_square to vector
-        }
-        else {
-            mean_squares.at(i) += m_square; // Push to vector
-        }
+        mean_squares.at(i) += m_square; // Push to vector
     }
     return mean_squares;
 }
@@ -109,10 +101,8 @@ vector<double> buildMSquare(vector<double> dataRun, int runs) {
  * @param dataRun - total displacements for a single history (vector double)
  * @return void
  */
-vector<double> buildPDist(vector<double> dataRun, int t) {
-    vector<double> p_dist;
-    // Declare total displacement
-    int r_total;
+vector<double> buildPDist(vector<double> &p_dist, vector<double> dataRun, int t) {
+    int r_total; // Total displacement
     // Create vector elements
     for(int i = 0; i < 2 * t; i++) { // Positive and negative r_totals, need 2x space
         p_dist.push_back(0.0);
@@ -150,8 +140,7 @@ vector<double> buildPDist(vector<double> dataRun, int t) {
  * @param runs - number of histories to be analyzed, used for averaging (int)
  * @return void
  */
-vector<double> buildFs(vector<double> dataRun, double q, int runs) {
-    vector<double> f_s;
+vector<double> buildFs(vector<double> &f_s, vector<double> dataRun, double q, int runs, int steps) {
     double r_total;
     double f_value;
     for(int i = 0; i < f_s.size(); i++) {
@@ -303,26 +292,34 @@ int main() {
         }
 
         // A single thermal history
-        vector<double> history = getData(filename, steps);
-        /*
-        // Mean square displacement as a function of time
-        vector<double> mean_squares = buildMSquare(history, runs);
-        printDistribution(mean_squares, "mean_squares"); // Print to file
+        vector<double> history = getData(filename);
+        steps = history.size();
 
+        // Mean square displacement as a function of time
+        vector<double> mean_squares(steps, 0.0); // Initialize all elements to 0.0
+        buildMSquare(mean_squares, history, runs, steps);
+        printDistribution(mean_squares, "mean_squares"); // Print to file
+        /*
         // Probability distributions as functions of position at time t
-        vector<double> p_dist_t1 = buildPDist(history, t1);
+        vector<double> p_dist_t1(steps, 0.0);
+        buildPDist(p_dist_t1, history, t1);
         printDistribution(p_dist_t1, "p_dist_t1");
-        vector<double> p_dist_t2 = buildPDist(history, t2);
+        vector<double> p_dist_t1(steps, 0.0);
+        buildPDist(p_dist_t2, history, t2);
         printDistribution(p_dist_t2, "p_dist_t2");
-        vector<double> p_dist_t3 = buildPDist(history, t3);
+        vector<double> p_dist_t1(steps, 0.0);
+        buildPDist(p_dist_t3, history, t3);
         printDistribution(p_dist_t3, "p_dist_t3");
 
         // Self-intermediate scattering functions as a function of time
-        vector<double> f_s_q1 = buildFs(history, q1, runs);
+        vector<double> f_s_q1(steps, 0.0);
+        buildFs(f_s_q1, history, q1, runs, steps);
         printDistribution(f_s_q1, "f_s_q1");
-        vector<double> f_s_q2 = buildFs(history, q2, runs);
+        vector<double> f_s_q1(steps, 0.0);
+        buildFs(f_s_q2, history, q2, runs, steps);
         printDistribution(f_s_q2, "f_s_q2");
-        vector<double> f_s_q3 = buildFs(history, q3, runs);
+        vector<double> f_s_q1(steps, 0.0);
+        buildFs(f_s_q3, history, q3, runs, steps);
         printDistribution(f_s_q3, "f_s_q3");
         */
         startfile++; // Go to next datafile
