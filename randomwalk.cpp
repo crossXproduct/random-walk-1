@@ -1,3 +1,14 @@
+/**
+ * randomwalk.cpp
+ * E. Aaron
+ * 06-23-2021
+ *
+ * Generates a specified number of thermal histories , each with a specified number of time-
+ * steps, and prints them to files named "history*.dat" where * is the number of the history
+ * (i.e. 01, 02, ... , 10, etc). Each line of the files contains the total displacement at
+ * that timestep (line 1 is t = 0).
+ */
+
 #include <cstdlib>
 #include <iostream>
 #include <iomanip>
@@ -64,7 +75,7 @@ string getFilename() {
 
     do { //Search for filename that does not yet exist, and create the file
 
-        
+
 
         if(!name.eof()) {
             name.close();
@@ -74,7 +85,7 @@ string getFilename() {
         if(number2 == 9) {
             number1++;
             number2 = 0;
-            } 
+            }
         else number2++;
 
         fullname = "history" + to_string(number1) + to_string(number2) + ".dat";
