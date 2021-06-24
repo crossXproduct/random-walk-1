@@ -71,25 +71,7 @@ vector<double> getData(string filename) {
 }
 
 
-/**
- * buildMSquare
- * Initializes a vector of mean square displacements for a specified history.
- * Each element is a bin whose index is the time (or number of steps).
- *
- * @param mean_squares - mean square displacement as function of discrete time, taken
- *                       by reference from main (vector double)
- * @param dataRun - total displacements for a single history (vector double)
- * @param runs - number of histories to be analyzed, used for averaging (int)
- * @return void
- */
-vector<double> buildMSquare(vector<double> &mean_squares, vector<double> dataRun, int runs, int steps) {
-    double m_square; // Mean square displacement
-    for(int i = 0; i < steps; i++) {
-        m_square = pow(dataRun.at(i), 2) / runs; // Calculate square average
-        mean_squares.at(i) += m_square; // Push to vector
-    }
-    return mean_squares;
-}
+
 
 
 /**
@@ -102,7 +84,7 @@ vector<double> buildMSquare(vector<double> &mean_squares, vector<double> dataRun
  * @param dataRun - total displacements for a single history (vector double)
  * @return void
  */
-vector<double> buildPDist(vector<double> &p_dist, vector<double> dataRun, int runs, int t) {
+void buildPDist(vector<double> &p_dist, vector<double> dataRun, int runs, int t) {
     // Fill elements
     double r_total; // Total displacement
     for(int i = 0; i < t; i++) {
@@ -112,13 +94,35 @@ vector<double> buildPDist(vector<double> &p_dist, vector<double> dataRun, int ru
     p_dist.shrink_to_fit();
 
     // Normalize
-    double sum = t * runs;
+    cout << "Runs: " << runs << endl;
+    cout << "Counts:\n";
     for(int i = 0; i < p_dist.size(); i++) {
-        p_dist.at(i) /= sum;
+        cout << setw(5) << p_dist.at(i);
     }
-    return p_dist;
+    cout << endl;
+
+    for(int i = 0; i < p_dist.size(); i++) {
+        p_dist.at(i) /= runs;
+    }
 }
 
+/**
+ * buildMSquare
+ * Initializes a vector of mean square displacements for a specified history.
+ * Each element is a bin whose index is the time (or number of steps).
+ *
+ * @param mean_squares - mean square displacement as function of discrete time, taken
+ *                       by reference from main (vector double)
+ * @param dataRun - total displacements for a single history (vector double)
+ * @param runs - number of histories to be analyzed, used for averaging (int)
+ * @return void
+ */
+void buildMSquare(vector<double> &mean_squares, vector<double> dataRun, int runs, int steps) {
+    for(int i = 0; i < steps; i++) {
+        mean_squares.at(i) += pow(dataRun.at(i), 2); // Push to vector
+        //NORMALIZE
+    }
+}
 
 /**
  * buildFs
@@ -128,23 +132,16 @@ vector<double> buildPDist(vector<double> &p_dist, vector<double> dataRun, int ru
  * @param f_s - self-intermediate scattering function, taken by reference from main (vector double)
  * @param dataRun - total displacements for a single history (vector double)
  * @param q - parameter of f_s (double)
- * @param runs - number of histories to be analyzed, used for averaging (int)
+ * @param runs number of histories to be analyzed, used for averaging (int)
+ * @param steps number of timesteps
  * @return void
  */
-vector<double> buildFs(vector<double> &f_s, vector<double> dataRun, double q, int runs, int steps) {
-    double r_total;
-    double f_value;
-    for(int i = 0; i < f_s.size(); i++) {
-        r_total = dataRun.at(i);
-        f_value = cos(q*r_total) / runs;
-        if(i >= f_s.size()) {
-            f_s.push_back(f_value);
-        }
-        else f_s.at(i) += f_value;
+void buildFs(vector<double> &f_s, vector<double> dataRun, double q, int runs, int steps) {
+    for(int i = 0; i < steps; i++) {
+        f_s.at(i) += cos(q * dataRun.at(i));
+        //NORMALIZE
     }
-    return f_s;
 }
-
 
 /**
  * buildMSquareThy
