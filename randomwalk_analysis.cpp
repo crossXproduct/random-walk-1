@@ -86,6 +86,7 @@ vector<double> buildMSquare(vector<double> &mean_squares, vector<double> dataRun
     for(int i = 0; i < steps; i++) {
         m_square = pow(dataRun.at(i), 2) / runs; // Calculate square average
         mean_squares.at(i) += m_square; // Push to vector
+        cout << mean_squares.at(i) << endl;
     }
     return mean_squares;
 }
@@ -249,40 +250,60 @@ int main() {
 
 
     //VARIABLES
-    int t1, t2, t3; // Three times at which to evaluate the spatial probability distribution
-    double q1, q2, q3; // Three qs at which to evaluate self-intermediate scattering function
-    double d; // Diffusion coefficient
-
-    int runs; // Number of histories, initialized from user input
-    int steps; // Number of timesteps in each history, initialized by getData()
-
-    string filename = ""; // Name of data file to be processed
-    //initialized by user input and updated by main program
+    // Constants & parameters
     int startfile, endfile; // Number of first and last data file to process, in numerical order
-    ifstream file; // File input stream for reading data
-
-
-    //INPUT
-    //Initialize t1..t3, q1..q3, runs, and d
     cout << "Enter number of first datafile (e.g. \"1\" for history01.dat): ";
     cin >> startfile;
     cout << "Enter number of last datafile (e.g. \"10\" for history10.dat): ";
     cin >> endfile;
-    runs = endfile - startfile + 1;
+
+    int runs = endfile - startfile + 1; // Number of histories
+
+    int t1, t2, t3; // Three times at which to evaluate the spatial probability distribution
     cout << "Enter three successive time values (assuming t_0 = 0 s) at which to evaluate probability distribution: \n";
     cin >> t1;
     cin >> t2;
     cin >> t3;
+
+    double q1, q2, q3; // Three qs at which to evaluate self-intermediate scattering function
     cout << "Enter three successive (int or decimal) q values at which to evaluate self-intermediate scattering function: \n";
     cin >> q1;
     cin >> q2;
     cin >> q3;
+
+    double d; // Diffusion coefficient
     cout << "Enter diffusion coefficient: ";
     cin >> d;
 
+    string filename; // Name of current data file
+    if(startfile < 10) // Get name of first data file
+        filename = "history0" + to_string(startfile) + ".dat";
+    else filename = "history" + to_string(startfile) + ".dat";
 
-    //DATA
-    // Build & print data distributions
+    int steps = getData(filename).size(); // Number of timesteps in each history
+    // Determined by number of lines in first datafile
+
+    // Theory vectors (initialized)
+    vector<double> mean_squares_thy = buildMSquareThy(d, runs, steps);
+    vector<double> p_dist_thy_t1 = buildPDistThy(d, t1, steps);
+    vector<double> p_dist_thy_t2 = buildPDistThy(d, t2, steps);
+    vector<double> p_dist_thy_t3 = buildPDistThy(d, t3, steps);
+    vector<double> f_s_thy_q1 = buildFsThy(q1, d, steps);
+    vector<double> f_s_thy_q2 = buildFsThy(q2, d, steps);
+    vector<double> f_s_thy_q3 = buildFsThy(q3, d, steps);
+
+    // Empty data vectors
+    vector<double> mean_squares(steps, 0.0); // Mean square displacement as function of time
+    vector<double> p_dist_t1(steps, 0.0); // Spatial probability distribution at time t
+    vector<double> p_dist_t2(steps, 0.0);
+    vector<double> p_dist_t3(steps, 0.0);
+    vector<double> f_s_q1(steps, 0.0); // Self-intermediate scattering funct. as function of time
+    vector<double> f_s_q2(steps, 0.0); // with parameter q
+    vector<double> f_s_q3(steps, 0.0);
+
+
+    // CREATE DATA DISTRIBUTIONS FROM FILE
+    ifstream file; // File input stream for reading data
     do {
         if(startfile < 10) {
             filename = "history0" + to_string(startfile) + ".dat";
@@ -296,58 +317,48 @@ int main() {
         steps = history.size();
 
         // Mean square displacement as a function of time
-        vector<double> mean_squares(steps, 0.0); // Initialize all elements to 0.0
         buildMSquare(mean_squares, history, runs, steps);
-        printDistribution(mean_squares, "mean_squares"); // Print to file
         /*
         // Probability distributions as functions of position at time t
-        vector<double> p_dist_t1(steps, 0.0);
         buildPDist(p_dist_t1, history, t1);
-        printDistribution(p_dist_t1, "p_dist_t1");
-        vector<double> p_dist_t1(steps, 0.0);
         buildPDist(p_dist_t2, history, t2);
-        printDistribution(p_dist_t2, "p_dist_t2");
-        vector<double> p_dist_t1(steps, 0.0);
         buildPDist(p_dist_t3, history, t3);
-        printDistribution(p_dist_t3, "p_dist_t3");
 
         // Self-intermediate scattering functions as a function of time
-        vector<double> f_s_q1(steps, 0.0);
         buildFs(f_s_q1, history, q1, runs, steps);
-        printDistribution(f_s_q1, "f_s_q1");
-        vector<double> f_s_q1(steps, 0.0);
         buildFs(f_s_q2, history, q2, runs, steps);
-        printDistribution(f_s_q2, "f_s_q2");
-        vector<double> f_s_q1(steps, 0.0);
         buildFs(f_s_q3, history, q3, runs, steps);
-        printDistribution(f_s_q3, "f_s_q3");
         */
         startfile++; // Go to next datafile
 
     } while(startfile <= endfile);
 
 
-    //THEORY
-    // Build & print theoretical distributions
-    // Mean square displacement as a function of time
-    vector<double> mean_squares_thy = buildMSquareThy(d, runs, steps);
+    //PRINT DISTRIBUTIONS TO FILES
+
+    // Theory
+    // Mean square displacement
     printDistribution(mean_squares_thy, "mean_squares_thy");
-
-    // Probability distributions as functions of position at time t
-    vector<double> p_dist_thy_t1 = buildPDistThy(d, t1, steps);
+    // Probability distributions
     printDistribution(p_dist_thy_t1, "p_dist_thy_t1");
-    vector<double> p_dist_thy_t2 = buildPDistThy(d, t2, steps);
     printDistribution(p_dist_thy_t2, "p_dist_thy_t2");
-    vector<double> p_dist_thy_t3 = buildPDistThy(d, t3, steps);
     printDistribution(p_dist_thy_t3, "p_dist_thy_t3");
-
-    // Self-intermediate scattering functions as a function of time
-    vector<double> f_s_thy_q1 = buildFsThy(q1, d, steps);
+    // Self-intermediate scattering functions
     printDistribution(f_s_thy_q1, "f_s_thy_q1");
-    vector<double> f_s_thy_q2 = buildFsThy(q2, d, steps);
     printDistribution(f_s_thy_q2, "f_s_thy_q2");
-    vector<double> f_s_thy_q3 = buildFsThy(q3, d, steps);
     printDistribution(f_s_thy_q3, "f_s_thy_q3");
+
+    // Data
+    // Mean square displacement
+    printDistribution(mean_squares, "mean_squares");
+    // Probability distributions
+    printDistribution(p_dist_t1, "p_dist_t1");
+    printDistribution(p_dist_t2, "p_dist_t2");
+    printDistribution(p_dist_t3, "p_dist_t3");
+    // Self-intermediate scattering functions
+    printDistribution(f_s_q1, "f_s_q1");
+    printDistribution(f_s_q2, "f_s_q2");
+    printDistribution(f_s_q3, "f_s_q3");
 
     return 0;
 } ///MAIN
