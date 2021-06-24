@@ -248,7 +248,6 @@ void printDistribution(vector<double> dist, string name) {
 ///MAIN PROGRAM///
 int main() {
 
-
     //VARIABLES
     // Constants & parameters
     int startfile, endfile; // Number of first and last data file to process, in numerical order
@@ -302,7 +301,7 @@ int main() {
     vector<double> f_s_q3(steps, 0.0);
 
 
-    // CREATE DATA DISTRIBUTIONS FROM FILE
+    // FILL DATA VECTORS FROM FILE
     ifstream file; // File input stream for reading data
     do {
         if(startfile < 10) {
@@ -334,7 +333,7 @@ int main() {
     } while(startfile <= endfile);
 
 
-    //PRINT DISTRIBUTIONS TO FILES
+    //PRINT VECTORS TO FILES
 
     // Theory
     // Mean square displacement
