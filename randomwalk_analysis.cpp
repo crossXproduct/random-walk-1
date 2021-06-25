@@ -70,19 +70,14 @@ vector<double> getData(string filename) {
     return dataRun;
 }
 
-
-
-
-
 /**
  * buildPDist
- * Initializes a vector probability distribution (spatial) of specified history. Each element
+ * initializes a vector probability distribution (spatial) of specified history. Each element
  * is a bin whose index is the total displacement.
  *
- * @param p_dist - probability distribution as function of discrete position, taken
- *                 by reference from main (vector double)
- * @param dataRun - total displacements for a single history (vector double)
- * @return void
+ * @param p_dist probability distribution as function of discrete position, taken
+ *               by reference from main (vector double)
+ * @param dataRun total displacements for a single history (vector double)
  */
 void buildPDist(vector<double> &p_dist, vector<double> dataRun, int runs, int t) {
     // Fill elements
@@ -92,67 +87,50 @@ void buildPDist(vector<double> &p_dist, vector<double> dataRun, int runs, int t)
         p_dist.at(r_total + dataRun.size()) += 1.0; // Shifted origin to accommodate negative position values
     }
     p_dist.shrink_to_fit();
-
-    // Normalize
-    cout << "Runs: " << runs << endl;
-    cout << "Counts:\n";
-    for(int i = 0; i < p_dist.size(); i++) {
-        cout << setw(5) << p_dist.at(i);
-    }
-    cout << endl;
-
-    for(int i = 0; i < p_dist.size(); i++) {
-        p_dist.at(i) /= runs;
-    }
 }
 
 /**
  * buildMSquare
- * Initializes a vector of mean square displacements for a specified history.
+ * initializes a vector of mean square displacements for a specified history.
  * Each element is a bin whose index is the time (or number of steps).
  *
- * @param mean_squares - mean square displacement as function of discrete time, taken
+ * @param mean_squares mean square displacement as function of discrete time, taken
  *                       by reference from main (vector double)
- * @param dataRun - total displacements for a single history (vector double)
- * @param runs - number of histories to be analyzed, used for averaging (int)
- * @return void
+ * @param dataRun total displacements for a single history (vector double)
+ * @param runs number of histories to be analyzed, used for averaging (int)
  */
 void buildMSquare(vector<double> &mean_squares, vector<double> dataRun, int runs, int steps) {
     for(int i = 0; i < steps; i++) {
         mean_squares.at(i) += pow(dataRun.at(i), 2); // Push to vector
-        //NORMALIZE
     }
 }
 
 /**
  * buildFs
- * Initializes a vector version of the self-intermediate scattering function for
+ * initializes a vector version of the self-intermediate scattering function for
  * specified history. Each element is a bin whose index is the time (or number of steps).
  *
- * @param f_s - self-intermediate scattering function, taken by reference from main (vector double)
- * @param dataRun - total displacements for a single history (vector double)
- * @param q - parameter of f_s (double)
+ * @param f_s self-intermediate scattering function, taken by reference from main (vector double)
+ * @param dataRun total displacements for a single history (vector double)
+ * @param q parameter of f_s (double)
  * @param runs number of histories to be analyzed, used for averaging (int)
  * @param steps number of timesteps
- * @return void
  */
 void buildFs(vector<double> &f_s, vector<double> dataRun, double q, int runs, int steps) {
     for(int i = 0; i < steps; i++) {
         f_s.at(i) += cos(q * dataRun.at(i));
-        //NORMALIZE
     }
 }
 
 /**
  * buildMSquareThy
- * Given number of steps, initializes a vector of theoretical mean square displacements.
+ * initializes a vector of theoretical mean square displacements, given the number of steps in a history.
  *
- * @param mean_squares_thy - theoretical mean square displacement as function of discrete time,
+ * @param mean_squares_thy theoretical mean square displacement as function of discrete time,
  *                           taken by reference from main (vector double)
- * @param d - diffusion coefficient (double)
- * @param runs - number of histories to be analyzed, used for averaging (int)
- * @param steps - number of steps per run
- * @return void
+ * @param d diffusion coefficient (double)
+ * @param runs number of histories to be analyzed, used for averaging (int)
+ * @param steps number of steps per run
  */
 vector<double> buildMSquareThy(int d, int runs, int steps) {
     vector<double> mean_squares_thy;
@@ -168,14 +146,13 @@ vector<double> buildMSquareThy(int d, int runs, int steps) {
 
 /**
  * buildPDistThy
- * Initializes a vector representing theoretical probability distribution (spatial).
+ * initializes a vector representing theoretical probability distribution (spatial).
  * Each element is a bin whose index is the total displacement.
  *
- * @param p_dist_thy - theoretical probability distribution as function of discrete position,
- *                     taken by reference from main (vector double)
- * @param d - diffusion coefficient (double)
- * @param t - time in s at which to evaluate distribution (int)
- * @return void
+ * @param p_dist_thy theoretical probability distribution as function of discrete position,
+ *                   taken by reference from main (vector double)
+ * @param d diffusion coefficient (double)
+ * @param t time in s at which to evaluate distribution (int)
  */
 vector<double> buildPDistThy(int d, int t, int steps) {
     vector<double> p_dist_thy;
@@ -192,14 +169,12 @@ vector<double> buildPDistThy(int d, int t, int steps) {
 
 /**
  * buildFsThy
- * Initializes a vector version of the theoretical self-intermediate scattering function. Each
+ * initializes a vector version of the theoretical self-intermediate scattering function. Each
  * element is a bin whose index is the time (or number of steps).
  *
- * @param f_s_thy - theoretical self-intermediate scattering function, taken by reference
- *                  from main (vector double)
- * @param q - parameter of f_s (double)
- * @param steps - number of steps per run
- * @return void
+ * @param f_s_thy theoretical self-intermediate scattering function, taken by reference from main (vector double)
+ * @param q parameter of f_s (double)
+ * @param steps number of steps per run
  */
 vector<double> buildFsThy(int q, int d, int steps) {
     vector<double> f_s_thy;
@@ -214,14 +189,12 @@ vector<double> buildFsThy(int q, int d, int steps) {
 
 /**
  * printDistribution
- * Prints specified vector elements to a file, one element per line. First line is the "origin"
+ * prints specified vector elements to a file, one element per line. First line is the "origin"
  * or "zero" of respective distribution.
  *
- * @param f_s_thy - theoretical self-intermediate scattering function, taken by reference
- *                  from main (vector double)
- * @param q - parameter of f_s (double)
- * @param steps - number of steps per run
- * @return void
+ * @param f_s_thy theoretical self-intermediate scattering function, taken by reference from main (vector double)
+ * @param q parameter of f_s (double)
+ * @param steps number of steps per run
  */
 void printDistribution(vector<double> dist, string name) {
     ofstream printfile;
@@ -231,6 +204,20 @@ void printDistribution(vector<double> dist, string name) {
         printfile << endl << i << "," << dist.at(i);
     }
 }
+
+/**
+ * normalize
+ * divides each element of a vector distribution by the number of histories.
+ *
+ * @param dist probability or other distribution from history data to be normalized. Taken by reference.
+ * @param runs number of histories used to generate the distribution.
+ */
+void normalize(vector<double> &dist, int runs) {
+    for(int i = 0; i < dist.size(); i++) {
+        dist.at(i) /= runs;
+    }
+}
+
 
 ///MAIN PROGRAM///
 int main() {
@@ -310,16 +297,23 @@ int main() {
 
         // Mean square displacement as a function of time
         buildMSquare(mean_squares, history, runs, steps);
+        normalize(mean_squares, runs);
 
         // Probability distributions as functions of position at time t
         buildPDist(p_dist_t1, history, runs, t1);
+        normalize(p_dist_t1, runs);
         buildPDist(p_dist_t2, history, runs, t2);
+        normalize(p_dist_t2, runs);
         buildPDist(p_dist_t3, history, runs, t3);
+        normalize(p_dist_t3, runs);
         /*
         // Self-intermediate scattering functions as a function of time
         buildFs(f_s_q1, history, q1, runs, steps);
+        normalize(f_s_q1, runs);
         buildFs(f_s_q2, history, q2, runs, steps);
+        normalize(f_s_q2, runs);
         buildFs(f_s_q3, history, q3, runs, steps);
+        normalize(f_s_q3, runs);
         */
         startfile++; // Go to next datafile
 
