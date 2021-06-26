@@ -81,12 +81,10 @@ vector<double> getData(string filename) {
  */
 void buildPDist(vector<double> &p_dist, vector<double> dataRun, int runs, int t) {
     // Fill elements
-    double r_total; // Total displacement
-    for(int i = 0; i < t; i++) {
-        r_total = dataRun.at(i); // Set total displacement
-        p_dist.at(r_total + dataRun.size()) += 1.0; // Shifted origin to accommodate negative position values
-    }
-    p_dist.shrink_to_fit();
+    cout << setw(8) << t;
+    p_dist.at(dataRun.at(t) + dataRun.size()) += 1.0; // Shifted origin to accommodate negative position values
+    for(int i = 0; i < p_dist.size(); i++) // Print for debugging
+        cout << setw(8) << p_dist.at(i);
 }
 
 /**
@@ -142,7 +140,6 @@ vector<double> buildMSquareThy(int d, int runs, int steps) {
     }
     return mean_squares_thy;
 }
-
 
 /**
  * buildPDistThy
@@ -276,13 +273,7 @@ int main() {
 
     // FILL DATA VECTORS FROM FILE
     ifstream file; // File input stream for reading data
-    // Print for debugging
-    cout << setw(5) << "Time";
-    cout << setw(5) << "P(0)";
-    cout << setw(5) << "P(1)";
-    cout << setw(5) << "P(2)";
-    cout << endl;
-
+    cout << setw(8) << "Time" << endl;
     do {
         if(startfile < 10) {
             filename = "history0" + to_string(startfile) + ".dat";
