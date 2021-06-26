@@ -79,12 +79,22 @@ vector<double> getData(string filename) {
  *               by reference from main (vector double)
  * @param dataRun total displacements for a single history (vector double)
  */
-void buildPDist(vector<double> &p_dist, vector<double> dataRun, int runs, int t) {
+void buildPDist(vector<double> &p_dist, vector<double> dataRun, int runs, int steps, int t) {
     // Fill elements
-    cout << setw(8) << t;
-    p_dist.at(dataRun.at(t) + dataRun.size()) += 1.0; // Shifted origin to accommodate negative position values
-    for(int i = 0; i < p_dist.size(); i++) // Print for debugging
-        cout << setw(8) << p_dist.at(i);
+    if(t > dataRun.size()) {
+        cout << "******" << endl;
+        cout << "ERROR: Time value(s) too large. ";
+        cout << "******" << endl;
+        return;
+    }
+    p_dist.at(dataRun.at(t - 1) + steps) += 1.0; // Shifted origin to accommodate negative position values
+
+    // Prints for debugging
+    cout << left << setw(8) << t;
+    for(int i = 0; i < p_dist.size(); i++) {
+        cout << left << setw(8) << fixed << setprecision(2) << p_dist.at(i);
+    }
+    cout << endl;
 }
 
 /**
@@ -98,8 +108,16 @@ void buildPDist(vector<double> &p_dist, vector<double> dataRun, int runs, int t)
  * @param runs number of histories to be analyzed, used for averaging (int)
  */
 void buildMSquare(vector<double> &mean_squares, vector<double> dataRun, int runs, int steps) {
+    // Fill vector
     for(int i = 0; i < steps; i++) {
         mean_squares.at(i) += pow(dataRun.at(i), 2); // Push to vector
+    }
+
+    // Prints for debugging
+    for(int i = 0; i < mean_squares.size(); i++) {
+        cout << left << setw(8) << i;
+        cout << left << setw(8) << fixed << setprecision(2) << mean_squares.at(i);
+        cout << endl;
     }
 }
 
@@ -114,10 +132,18 @@ void buildMSquare(vector<double> &mean_squares, vector<double> dataRun, int runs
  * @param runs number of histories to be analyzed, used for averaging (int)
  * @param steps number of timesteps
  */
-void buildFs(vector<double> &f_s, vector<double> dataRun, double q, int runs, int steps) {
+void buildFs(vector<double> &f_s, vector<double> dataRun, double q, int steps) {
     for(int i = 0; i < steps; i++) {
         f_s.at(i) += cos(q * dataRun.at(i));
     }
+
+    // Prints for debugging
+    for(int i = 0; i < f_s.size(); i++) {
+        cout << left << setw(8) << i;
+        cout << left << setw(8) << fixed << setprecision(2) << f_s.at(i);
+        cout << endl;
+    }
+
 }
 
 /**
@@ -270,10 +296,9 @@ int main() {
     vector<double> f_s_q2(steps, 0.0); // with parameter q
     vector<double> f_s_q3(steps, 0.0);
 
-
     // FILL DATA VECTORS FROM FILE
     ifstream file; // File input stream for reading data
-    cout << setw(8) << "Time" << endl;
+    int countRuns = 1; // Counter for debugging
     do {
         if(startfile < 10) {
             filename = "history0" + to_string(startfile) + ".dat";
@@ -286,28 +311,58 @@ int main() {
         vector<double> history = getData(filename);
         steps = history.size();
 
+        // Prints for debugging
+        cout << endl << "**********************************************" << endl;
+        cout << "Run: " << countRuns << endl;
+        cout << "Steps: " << steps << endl;
+        cout << "**********************************************" << endl << endl;
+
+        // Prints for debugging <r^2>
+        cout << left << setw(8) << "Time";
+        cout << left << setw(8) << "<r^2>";
+        cout << endl;
+
         // Mean square displacement as a function of time
         buildMSquare(mean_squares, history, runs, steps);
         normalize(mean_squares, runs);
 
-        // Probability distributions as functions of position at time t
-        buildPDist(p_dist_t1, history, runs, t1);
-        normalize(p_dist_t1, runs);
-        buildPDist(p_dist_t2, history, runs, t2);
-        normalize(p_dist_t2, runs);
-        buildPDist(p_dist_t3, history, runs, t3);
-        normalize(p_dist_t3, runs);
-        /*
-        // Self-intermediate scattering functions as a function of time
-        buildFs(f_s_q1, history, q1, runs, steps);
-        normalize(f_s_q1, runs);
-        buildFs(f_s_q2, history, q2, runs, steps);
-        normalize(f_s_q2, runs);
-        buildFs(f_s_q3, history, q3, runs, steps);
-        normalize(f_s_q3, runs);
-        */
-        startfile++; // Go to next datafile
+        // Prints for debugging P(r)
+        cout << left << setw(8) << "Time";
+        for(int i = 0; i < 2 * steps; i++) {
+            cout << left << setw(8) << "P(r = " + to_string(i) + ")";
+        }
+        cout << endl;
 
+        // Probability distributions as functions of position at time t
+        buildPDist(p_dist_t1, history, runs, steps, t1);
+        normalize(p_dist_t1, runs);
+        buildPDist(p_dist_t2, history, runs, steps, t2);
+        normalize(p_dist_t2, runs);
+        buildPDist(p_dist_t3, history, runs, steps, t3);
+        normalize(p_dist_t3, runs);
+
+        // Self-intermediate scattering functions as a function of time
+        // Prints for debugging f_s(q,t)
+        cout << left << setw(8) << "Time";
+        cout << left << setw(8) << "f_s(q = " << fixed << setprecision(2) << q1 << ")";
+        cout << endl;
+        buildFs(f_s_q1, history, q1, steps);
+        normalize(f_s_q1, runs);
+        // Prints for debugging f_s(q,t)
+        cout << left << setw(8) << "Time";
+        cout << left << setw(8) << "f_s(q = " << fixed << setprecision(2) << q2 << ")";
+        cout << endl;
+        buildFs(f_s_q2, history, q2, steps);
+        normalize(f_s_q2, runs);
+        // Prints for debugging f_s(q,t)
+        cout << left << setw(8) << "Time";
+        cout << left << setw(8) << "f_s(q = " << fixed << setprecision(2) << q3 << ")";
+        cout << endl;
+        buildFs(f_s_q3, history, q3, steps);
+        normalize(f_s_q3, runs);
+
+        startfile++; // Go to next datafile
+        countRuns++;
     } while(startfile <= endfile);
 
 
