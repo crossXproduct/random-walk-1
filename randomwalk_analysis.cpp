@@ -80,19 +80,21 @@ vector<double> getData(string filename) {
  * @param dataRun total displacements for a single history (vector double)
  */
 void buildPDist(vector<double> &p_dist, vector<double> dataRun, int runs, int steps, int t) {
-    // Fill elements
+    // Reject invalid input
     if(t > dataRun.size()) {
         cout << "******" << endl;
         cout << "ERROR: Time value(s) too large. ";
         cout << "******" << endl;
         return;
     }
-    p_dist.at(dataRun.at(t - 1) + steps) += 1.0; // Shifted origin to accommodate negative position values
+
+    // Fill elements
+    p_dist.at(dataRun.at(t) + steps) += 1.0; // Shifted origin to accommodate negative position values
 
     // Prints for debugging
-    cout << left << setw(8) << t;
+    cout << left << setw(10) << t;
     for(int i = 0; i < p_dist.size(); i++) {
-        cout << left << setw(8) << fixed << setprecision(2) << p_dist.at(i);
+        cout << left << setw(10) << fixed << setprecision(2) << p_dist.at(i);
     }
     cout << endl;
 }
@@ -115,8 +117,8 @@ void buildMSquare(vector<double> &mean_squares, vector<double> dataRun, int runs
 
     // Prints for debugging
     for(int i = 0; i < mean_squares.size(); i++) {
-        cout << left << setw(8) << i;
-        cout << left << setw(8) << fixed << setprecision(2) << mean_squares.at(i);
+        cout << left << setw(10) << i;
+        cout << left << setw(10) << fixed << setprecision(2) << mean_squares.at(i);
         cout << endl;
     }
 }
@@ -139,8 +141,8 @@ void buildFs(vector<double> &f_s, vector<double> dataRun, double q, int steps) {
 
     // Prints for debugging
     for(int i = 0; i < f_s.size(); i++) {
-        cout << left << setw(8) << i;
-        cout << left << setw(8) << fixed << setprecision(2) << f_s.at(i);
+        cout << left << setw(10) << i;
+        cout << left << setw(10) << fixed << setprecision(2) << f_s.at(i);
         cout << endl;
     }
 
@@ -296,7 +298,7 @@ int main() {
     vector<double> f_s_q2(steps, 0.0); // with parameter q
     vector<double> f_s_q3(steps, 0.0);
 
-    // FILL DATA VECTORS FROM FILE
+    //FILL DATA VECTORS FROM FILE
     ifstream file; // File input stream for reading data
     int countRuns = 1; // Counter for debugging
     do {
@@ -318,76 +320,83 @@ int main() {
         cout << "**********************************************" << endl << endl;
 
         // Prints for debugging <r^2>
-        cout << left << setw(8) << "Time";
-        cout << left << setw(8) << "<r^2>";
+        cout << left << setw(10) << "Time";
+        cout << left << setw(10) << "<r^2>";
         cout << endl;
 
         // Mean square displacement as a function of time
         buildMSquare(mean_squares, history, runs, steps);
-        normalize(mean_squares, runs);
 
         // Prints for debugging P(r)
-        cout << left << setw(8) << "Time";
+        cout << left << setw(10) << "Time";
         for(int i = 0; i < 2 * steps; i++) {
-            cout << left << setw(8) << "P(r = " + to_string(i) + ")";
+            cout << left << setw(10) << "P(r = " + to_string(i - steps) + ")";
         }
         cout << endl;
 
         // Probability distributions as functions of position at time t
         buildPDist(p_dist_t1, history, runs, steps, t1);
-        normalize(p_dist_t1, runs);
         buildPDist(p_dist_t2, history, runs, steps, t2);
-        normalize(p_dist_t2, runs);
         buildPDist(p_dist_t3, history, runs, steps, t3);
-        normalize(p_dist_t3, runs);
+
 
         // Self-intermediate scattering functions as a function of time
         // Prints for debugging f_s(q,t)
-        cout << left << setw(8) << "Time";
-        cout << left << setw(8) << "f_s(q = " << fixed << setprecision(2) << q1 << ")";
+        cout << left << setw(10) << "Time";
+        cout << left << setw(10) << "f_s(q = " << fixed << setprecision(2) << q1 << ")";
         cout << endl;
         buildFs(f_s_q1, history, q1, steps);
-        normalize(f_s_q1, runs);
+
         // Prints for debugging f_s(q,t)
-        cout << left << setw(8) << "Time";
-        cout << left << setw(8) << "f_s(q = " << fixed << setprecision(2) << q2 << ")";
+        cout << left << setw(10) << "Time";
+        cout << left << setw(10) << "f_s(q = " << fixed << setprecision(2) << q2 << ")";
         cout << endl;
         buildFs(f_s_q2, history, q2, steps);
-        normalize(f_s_q2, runs);
+
         // Prints for debugging f_s(q,t)
-        cout << left << setw(8) << "Time";
-        cout << left << setw(8) << "f_s(q = " << fixed << setprecision(2) << q3 << ")";
+        cout << left << setw(10) << "Time";
+        cout << left << setw(10) << "f_s(q = " << fixed << setprecision(2) << q3 << ")";
         cout << endl;
         buildFs(f_s_q3, history, q3, steps);
-        normalize(f_s_q3, runs);
+
 
         startfile++; // Go to next datafile
         countRuns++;
     } while(startfile <= endfile);
 
+    //NORMALIZE DATA VECTORS
+    normalize(mean_squares, runs);
+
+    normalize(p_dist_t1, runs);
+    normalize(p_dist_t2, runs);
+    normalize(p_dist_t3, runs);
+
+    normalize(f_s_q1, runs);
+    normalize(f_s_q2, runs);
+    normalize(f_s_q3, runs);
+
 
     //PRINT VECTORS TO FILES
-
     // Theory
-    // Mean square displacement
+    //   Mean square displacement
     printDistribution(mean_squares_thy, "mean_squares_thy");
     // Probability distributions
     printDistribution(p_dist_thy_t1, "p_dist_thy_t1");
     printDistribution(p_dist_thy_t2, "p_dist_thy_t2");
     printDistribution(p_dist_thy_t3, "p_dist_thy_t3");
-    // Self-intermediate scattering functions
+    //   Self-intermediate scattering functions
     printDistribution(f_s_thy_q1, "f_s_thy_q1");
     printDistribution(f_s_thy_q2, "f_s_thy_q2");
     printDistribution(f_s_thy_q3, "f_s_thy_q3");
 
     // Data
-    // Mean square displacement
+    //   Mean square displacement
     printDistribution(mean_squares, "mean_squares");
     // Probability distributions
     printDistribution(p_dist_t1, "p_dist_t1");
     printDistribution(p_dist_t2, "p_dist_t2");
     printDistribution(p_dist_t3, "p_dist_t3");
-    // Self-intermediate scattering functions
+    //   Self-intermediate scattering functions
     printDistribution(f_s_q1, "f_s_q1");
     printDistribution(f_s_q2, "f_s_q2");
     printDistribution(f_s_q3, "f_s_q3");
