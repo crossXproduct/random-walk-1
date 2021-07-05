@@ -243,6 +243,82 @@ void normalize(vector<double> &dist, int runs) {
     }
 }
 
+void printToScreen(vector<vector<double> > dists, int runs, int steps, double q1, double q2, double q3){
+    // Prints for debugging
+    cout << endl << "**********************************************" << endl;
+    cout << "Run: " << runs << endl;
+    cout << "Steps: " << steps << endl;
+    cout << "**********************************************" << endl << endl;
+
+    // <r^2>
+    cout << left << setw(10) << "Time";
+    cout << left << setw(10) << "<r^2>";
+    cout << endl;
+    for(int i = 0; i < dists.at(0).size(); i++) {
+        cout << left << setw(10) << i;
+        cout << left << setw(10) << fixed << setprecision(2) << dists.at(0).at(i);
+        cout << endl;
+    }
+
+    // P(t1)
+    cout << left << setw(10) << "Time";
+    for(int i = 0; i < 2 * steps; i++) {
+        cout << left << setw(10) << "P(r = " + to_string(i - steps) + ")";
+    }
+    cout << left << setw(10) << dists.at(1).size();
+    for(int i = 0; i < dists.at(1).size(); i++) {
+        cout << left << setw(10) << fixed << setprecision(2) << dists.at(1).at(i);
+    }
+    cout << endl;
+    // P(t2)
+    cout << left << setw(10) << "Time";
+    for(int i = 0; i < 2 * steps; i++) {
+        cout << left << setw(10) << "P(r = " + to_string(i - steps) + ")";
+    }
+    cout << left << setw(10) << dists.at(2).size();
+    for(int i = 0; i < dists.at(2).size(); i++) {
+        cout << left << setw(10) << fixed << setprecision(2) << dists.at(2).at(i);
+    }
+    cout << endl;
+    // P(t3)
+    cout << left << setw(10) << "Time";
+    for(int i = 0; i < 2 * steps; i++) {
+        cout << left << setw(10) << "P(r = " + to_string(i - steps) + ")";
+    }
+    cout << left << setw(10) << dists.at(3).size();
+    for(int i = 0; i < dists.at(3).size(); i++) {
+        cout << left << setw(10) << fixed << setprecision(2) << dists.at(3).at(i);
+    }
+
+    cout << endl;
+    // f_s(q1,t)
+    cout << left << setw(10) << "Time";
+    cout << left << setw(10) << "f_s(q = " << fixed << setprecision(2) << q1 << ")";
+    cout << endl;
+    for(int i = 0; i < dists.at(4).size(); i++) {
+        cout << left << setw(10) << i;
+        cout << left << setw(10) << fixed << setprecision(2) << dists.at(4).at(i);
+        cout << endl;
+    }
+    // f_s(q2,t)
+    cout << left << setw(10) << "Time";
+    cout << left << setw(10) << "f_s(q = " << fixed << setprecision(2) << q2 << ")";
+    cout << endl;
+    for(int i = 0; i < dists.at(5).size(); i++) {
+        cout << left << setw(10) << i;
+        cout << left << setw(10) << fixed << setprecision(2) << dists.at(5).at(i);
+        cout << endl;
+    }
+    // f_s(q3,t)
+    cout << left << setw(10) << "Time";
+    cout << left << setw(10) << "f_s(q = " << fixed << setprecision(2) << q3 << ")";
+    cout << endl;
+    for(int i = 0; i < dists.at(6).size(); i++) {
+        cout << left << setw(10) << i;
+        cout << left << setw(10) << fixed << setprecision(2) << dists.at(6).at(i);
+        cout << endl;
+    }
+}
 
 ///MAIN PROGRAM///
 int main() {
@@ -313,53 +389,44 @@ int main() {
         vector<double> history = getData(filename);
         steps = history.size();
 
-        // Prints for debugging
-        cout << endl << "**********************************************" << endl;
-        cout << "Run: " << countRuns << endl;
-        cout << "Steps: " << steps << endl;
-        cout << "**********************************************" << endl << endl;
-
-        // Prints for debugging <r^2>
-        cout << left << setw(10) << "Time";
-        cout << left << setw(10) << "<r^2>";
-        cout << endl;
-
         // Mean square displacement as a function of time
         buildMSquare(mean_squares, history, runs, steps);
-
-        // Prints for debugging P(r)
-        cout << left << setw(10) << "Time";
-        for(int i = 0; i < 2 * steps; i++) {
-            cout << left << setw(10) << "P(r = " + to_string(i - steps) + ")";
-        }
-        cout << endl;
 
         // Probability distributions as functions of position at time t
         buildPDist(p_dist_t1, history, runs, steps, t1);
         buildPDist(p_dist_t2, history, runs, steps, t2);
         buildPDist(p_dist_t3, history, runs, steps, t3);
 
-
         // Self-intermediate scattering functions as a function of time
-        // Prints for debugging f_s(q,t)
-        cout << left << setw(10) << "Time";
-        cout << left << setw(10) << "f_s(q = " << fixed << setprecision(2) << q1 << ")";
-        cout << endl;
+
         buildFs(f_s_q1, history, q1, steps);
-
-        // Prints for debugging f_s(q,t)
-        cout << left << setw(10) << "Time";
-        cout << left << setw(10) << "f_s(q = " << fixed << setprecision(2) << q2 << ")";
-        cout << endl;
         buildFs(f_s_q2, history, q2, steps);
-
-        // Prints for debugging f_s(q,t)
-        cout << left << setw(10) << "Time";
-        cout << left << setw(10) << "f_s(q = " << fixed << setprecision(2) << q3 << ")";
-        cout << endl;
         buildFs(f_s_q3, history, q3, steps);
 
+        //PRINTS FOR DEBUGGING
+        vector<vector<double> > dataDists;
+        dataDists.push_back(mean_squares);
+        dataDists.push_back(p_dist_t1);
+        dataDists.push_back(p_dist_t2);
+        dataDists.push_back(p_dist_t3);
+        dataDists.push_back(f_s_q1);
+        dataDists.push_back(f_s_q2);
+        dataDists.push_back(f_s_q3);
+        cout << ">>>>>>>>>DATA<<<<<<<<<<" << endl;
+        printToScreen(dataDists, countRuns, steps, q1, q2, q3);
 
+        vector<vector<double> > theoryDists;
+        theoryDists.push_back(mean_squares_thy);
+        theoryDists.push_back(p_dist_thy_t1);
+        theoryDists.push_back(p_dist_thy_t2);
+        theoryDists.push_back(p_dist_thy_t3);
+        theoryDists.push_back(f_s_thy_q1);
+        theoryDists.push_back(f_s_thy_q2);
+        theoryDists.push_back(f_s_thy_q3);
+        cout << ">>>>>>>>>THEORY<<<<<<<<<<" << endl;
+        printToScreen(theoryDists, countRuns, steps, q1, q2, q3);
+
+        // Increment counters
         startfile++; // Go to next datafile
         countRuns++;
     } while(startfile <= endfile);
@@ -375,6 +442,26 @@ int main() {
     normalize(f_s_q2, runs);
     normalize(f_s_q3, runs);
 
+    //PRINTS FOR DEBUGGING
+    vector<vector<double> > dataDists;
+    dataDists.push_back(mean_squares);
+    dataDists.push_back(p_dist_t1);
+    dataDists.push_back(p_dist_t2);
+    dataDists.push_back(p_dist_t3);
+    dataDists.push_back(f_s_q1);
+    dataDists.push_back(f_s_q2);
+    dataDists.push_back(f_s_q3);
+    printToScreen(dataDists, countRuns, steps, q1, q2, q3);
+
+    vector<vector<double> > theoryDists;
+    theoryDists.push_back(mean_squares_thy);
+    theoryDists.push_back(p_dist_thy_t1);
+    theoryDists.push_back(p_dist_thy_t2);
+    theoryDists.push_back(p_dist_thy_t3);
+    theoryDists.push_back(f_s_thy_q1);
+    theoryDists.push_back(f_s_thy_q2);
+    theoryDists.push_back(f_s_thy_q3);
+    printToScreen(theoryDists, countRuns, steps, q1, q2, q3);
 
     //PRINT VECTORS TO FILES
     // Theory
