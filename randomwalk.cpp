@@ -49,7 +49,6 @@ void history(int num_steps, string filename) {
     ///Generate
     int step = 0;
     int r_total = 0;
-    file << r_total;
     for(int i = 1; i <= num_steps; i++){
         file << endl;
         step = (rand() % 2) * 2 - 1;
