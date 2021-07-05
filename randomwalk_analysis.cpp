@@ -90,15 +90,6 @@ void buildPDist(vector<double> &p_dist, vector<double> dataRun, int runs, int st
 
     // Fill elements
     p_dist.at(dataRun.at(t) + steps) += 1.0; // Shifted origin to accommodate negative position values
-
-    /*
-    // Prints for debugging
-    cout << left << setw(10) << t;
-    for(int i = 0; i < p_dist.size(); i++) {
-        cout << left << setw(10) << fixed << setprecision(2) << p_dist.at(i);
-    }
-    cout << endl;
-    */
 }
 
 /**
@@ -116,15 +107,6 @@ void buildMSquare(vector<double> &mean_squares, vector<double> dataRun, int runs
     for(int i = 0; i < steps; i++) {
         mean_squares.at(i) += pow(dataRun.at(i), 2); // Push to vector
     }
-
-    /*
-    // Prints for debugging
-    for(int i = 0; i < mean_squares.size(); i++) {
-        cout << left << setw(10) << i;
-        cout << left << setw(10) << fixed << setprecision(2) << mean_squares.at(i);
-        cout << endl;
-    }
-    */
 }
 
 /**
@@ -142,16 +124,6 @@ void buildFs(vector<double> &f_s, vector<double> dataRun, double q, int steps) {
     for(int i = 0; i < steps; i++) {
         f_s.at(i) += cos(q * dataRun.at(i));
     }
-
-    /*
-    // Prints for debugging
-    for(int i = 0; i < f_s.size(); i++) {
-        cout << left << setw(10) << i;
-        cout << left << setw(10) << fixed << setprecision(2) << f_s.at(i);
-        cout << endl;
-    }
-    */
-
 }
 
 /**
@@ -249,7 +221,7 @@ void normalize(vector<double> &dist, int runs) {
     }
 }
 
-void printToScreen(vector<vector<double> > dists, int runs, int steps, vector<int> qs, vector<int> ts){
+void printToScreen(vector<vector<double> > dists, int runs, int steps, vector<double> qs, vector<int> ts){
     // Prints for debugging
     cout << endl << "**********************************************" << endl;
     cout << "Run: " << runs << endl;
@@ -280,38 +252,6 @@ void printToScreen(vector<vector<double> > dists, int runs, int steps, vector<in
 
     }
 
-    /*
-    // P(t1)
-    cout << left << setw(10) << "Time = " << ts.at(0) << endl;
-    for(int i = 0; i < 2 * steps; i++) {
-        cout << left << setw(10) << "P(r = " + to_string(i - steps) + ")";
-    }
-    for(int i = 0; i < dists.at(1).size(); i++) {
-        cout << left << setw(10) << fixed << setprecision(2) << dists.at(1).at(i);
-    }
-    cout << endl;
-    // P(t2)
-    cout << left << setw(10) << "Time = " << ts.at(1) << endl;
-    for(int i = 0; i < 2 * steps; i++) {
-        cout << left << setw(10) << "P(r = " + to_string(i - steps) + ")";
-    }
-    cout << left << setw(10) << ts.at(1);
-    for(int i = 0; i < dists.at(2).size(); i++) {
-        cout << left << setw(10) << fixed << setprecision(2) << dists.at(2).at(i);
-    }
-    cout << endl;
-    // P(t3)
-    cout << left << setw(10) << "Time = " << ts.at(2) << endl;
-    for(int i = 0; i < 2 * steps; i++) {
-        cout << left << setw(10) << "P(r = " + to_string(i - steps) + ")";
-    }
-    cout << left << setw(10) << ts.at(2);
-    for(int i = 0; i < dists.at(3).size(); i++) {
-        cout << left << setw(10) << fixed << setprecision(2) << dists.at(3).at(i);
-    }
-    cout << endl;
-    */
-
    // f_s(q,t)
    for(int i = 0; i < 3; i++) {
         cout << left << setw(10) << "Time";
@@ -319,40 +259,10 @@ void printToScreen(vector<vector<double> > dists, int runs, int steps, vector<in
         cout << endl;
         for(int j = 0; j < dists.at(i + 4).size(); j++) {
             cout << left << setw(10) << j;
-            cout << left << setw(10) << fixed << setprecision(2) << dists.at(i + 4).at(i);
+            cout << left << setw(10) << fixed << setprecision(2) << dists.at(i + 4).at(j);
             cout << endl;
-    }
+        }
    }
-   /*
-    // f_s(q1,t)
-    cout << left << setw(10) << "Time";
-    cout << left << setw(10) << "f_s(q = " << fixed << setprecision(2) << qs.at(0) << ")";
-    cout << endl;
-    for(int i = 0; i < dists.at(4).size(); i++) {
-        cout << left << setw(10) << i;
-        cout << left << setw(10) << fixed << setprecision(2) << dists.at(4).at(i);
-        cout << endl;
-    }
-    // f_s(q2,t)
-    cout << left << setw(10) << "Time";
-    cout << left << setw(10) << "f_s(q = " << fixed << setprecision(2) << qs.at(1) << ")";
-    cout << endl;
-    for(int i = 0; i < dists.at(5).size(); i++) {
-        cout << left << setw(10) << i;
-        cout << left << setw(10) << fixed << setprecision(2) << dists.at(5).at(i);
-        cout << endl;
-    }
-    // f_s(q3,t)
-    cout << left << setw(10) << "Time";
-    cout << left << setw(10) << "f_s(q = " << fixed << setprecision(2) << qs.at(2) << ")";
-    cout << endl;
-    for(int i = 0; i < dists.at(6).size(); i++) {
-        cout << left << setw(10) << i;
-        cout << left << setw(10) << fixed << setprecision(2) << dists.at(6).at(i);
-        cout << endl;
-    }
-    cout << endl;
-    */
 }
 
 ///MAIN PROGRAM///
@@ -385,7 +295,7 @@ int main() {
     cin >> q2;
     cin >> q3;
 
-    vector<int> q_vector;
+    vector<double> q_vector;
     q_vector.push_back(q1);
     q_vector.push_back(q2);
     q_vector.push_back(q3);
@@ -472,7 +382,7 @@ int main() {
         theoryDists.push_back(f_s_thy_q2);
         theoryDists.push_back(f_s_thy_q3);
         cout << ">>>>>>>>>THEORY<<<<<<<<<<" << endl;
-        printToScreen(theoryDists, countRuns, steps, q_vector, t_vector);
+        //printToScreen(theoryDists, countRuns, steps, q_vector, t_vector);
 
         // Increment counters
         startfile++; // Go to next datafile
@@ -511,7 +421,7 @@ int main() {
     theoryDists.push_back(f_s_thy_q2);
     theoryDists.push_back(f_s_thy_q3);
     cout << ">>>>>>>>>THEORY<<<<<<<<<<" << endl;
-    printToScreen(theoryDists, countRuns, steps, q_vector, t_vector);
+    //printToScreen(theoryDists, countRuns, steps, q_vector, t_vector);
 
     //PRINT VECTORS TO FILES
     // Theory
