@@ -170,7 +170,7 @@ vector<double> buildPDistThy(vector<double> &p_dist_thy, double &d, int &t, int 
  * @param q parameter of f_s (double)
  * @param steps number of steps per run
  */
-vector<double> buildFsThy(vector<double> f_s_thy, double q, double d, int steps) {
+vector<double> buildFsThy(vector<double> &f_s_thy, double &q, double &d, int &steps) {
     for(int i = 0; i < f_s_thy.size(); i++) {
         f_s_thy.at(i) = exp(-pow(q, 2) * d * i);
     }
