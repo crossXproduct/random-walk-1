@@ -79,7 +79,7 @@ vector<double> getData(string filename) {
  *               by reference from main (vector double)
  * @param dataRun total displacements for a single history (vector double)
  */
-void buildPDist(vector<double> &p_dist, vector<double> dataRun, int runs, int steps, int t) {
+void buildPDist(vector<double> &p_dist, vector<double> &dataRun, int &runs, int &steps, int t) {
     // Reject invalid input
     if(t > dataRun.size()) {
         cout << "******" << endl;
@@ -102,7 +102,7 @@ void buildPDist(vector<double> &p_dist, vector<double> dataRun, int runs, int st
  * @param dataRun total displacements for a single history (vector double)
  * @param runs number of histories to be analyzed, used for averaging (int)
  */
-void buildMSquare(vector<double> &mean_squares, vector<double> dataRun, int runs, int steps) {
+void buildMSquare(vector<double> &mean_squares, vector<double> &dataRun, int &runs, int &steps) {
     // Fill vector
     for(int i = 0; i < steps; i++) {
         mean_squares.at(i) += pow(dataRun.at(i), 2); // Push to vector
@@ -120,7 +120,7 @@ void buildMSquare(vector<double> &mean_squares, vector<double> dataRun, int runs
  * @param runs number of histories to be analyzed, used for averaging (int)
  * @param steps number of timesteps
  */
-void buildFs(vector<double> &f_s, vector<double> dataRun, double q, int steps) {
+void buildFs(vector<double> &f_s, vector<double> &dataRun, double &q, int &steps) {
     for(int i = 0; i < steps; i++) {
         f_s.at(i) += cos(q * dataRun.at(i));
     }
@@ -136,7 +136,7 @@ void buildFs(vector<double> &f_s, vector<double> dataRun, double q, int steps) {
  * @param runs number of histories to be analyzed, used for averaging (int)
  * @param steps number of steps per run
  */
-vector<double> buildMSquareThy(vector<double> mean_squares_thy, double d, int runs) {
+vector<double> buildMSquareThy(vector<double> &mean_squares_thy, double &d, int &runs) {
     for(int i = 0; i < mean_squares_thy.size(); i++) {
         mean_squares_thy.at(i) = 2.0 * d * i / runs;
     }
@@ -153,10 +153,10 @@ vector<double> buildMSquareThy(vector<double> mean_squares_thy, double d, int ru
  * @param d diffusion coefficient (double)
  * @param t time in s at which to evaluate distribution (int)
  */
-vector<double> buildPDistThy(vector<double> p_dist_thy, double d, int t) {
+vector<double> buildPDistThy(vector<double> &p_dist_thy, double &d, int &t, int &steps) {
     double n = 1/sqrt(4 * M_PI * d * t);
     for(int i = 0; i < p_dist_thy.size(); i++) {
-        p_dist_thy.at(i) = n * exp(-pow(i - (p_dist_thy.size() - 1) / 2, 2) / 4 / d / t); // Origin will be shifted to right by t
+        p_dist_thy.at(i) = n * exp( -pow(i - (steps - 1), 2) / (4 * d * t)); // Origin will be shifted to right by t
     }
     return p_dist_thy;
 }
@@ -170,7 +170,7 @@ vector<double> buildPDistThy(vector<double> p_dist_thy, double d, int t) {
  * @param q parameter of f_s (double)
  * @param steps number of steps per run
  */
-vector<double> buildFsThy(vector<double> f_s_thy, double q, double d) {
+vector<double> buildFsThy(vector<double> f_s_thy, double q, double d, int steps) {
     for(int i = 0; i < f_s_thy.size(); i++) {
         f_s_thy.at(i) = exp(-pow(q, 2) * d * i);
     }
@@ -229,8 +229,8 @@ void printToScreen(vector<vector<double> > dists, int runs, int steps, vector<do
     // P(t)
     for(int i = 0; i < 3; i++) {
         cout << left << "Time = " << ts.at(i) << endl;
-        for(int j = 0; j <= 2 * steps; j++) {
-            cout << left << setw(10) << "P(r = " + to_string(j - steps) + ")";
+        for(int j = 0; j < 2 * steps - 1; j++) {
+            cout << left << setw(10) << "P(r = " + to_string(j - (steps - 1)) + ")";
         }
         cout << endl;
         for(int j = 0; j < dists.at(i + 1).size(); j++) {
@@ -302,18 +302,18 @@ int main() {
     // Theory vectors (initialized)
     vector<double> mean_squares_thy(steps);
     mean_squares_thy = buildMSquareThy(mean_squares_thy, d, runs);
-    vector<double> p_dist_thy_t1(steps * 2 + 1);
-    p_dist_thy_t1 = buildPDistThy(p_dist_thy_t1, d, t1);
-    vector<double> p_dist_thy_t2(steps * 2 + 1);
-    p_dist_thy_t2 = buildPDistThy(p_dist_thy_t2, d, t2);
-    vector<double> p_dist_thy_t3(steps * 2 + 1);
-    p_dist_thy_t3 = buildPDistThy(p_dist_thy_t3, d, t3);
+    vector<double> p_dist_thy_t1(steps * 2 - 1);
+    p_dist_thy_t1 = buildPDistThy(p_dist_thy_t1, d, t1, steps);
+    vector<double> p_dist_thy_t2(steps * 2 - 1);
+    p_dist_thy_t2 = buildPDistThy(p_dist_thy_t2, d, t2, steps);
+    vector<double> p_dist_thy_t3(steps * 2 - 1);
+    p_dist_thy_t3 = buildPDistThy(p_dist_thy_t3, d, t3, steps);
     vector<double> f_s_thy_q1(steps);
-    f_s_thy_q1 = buildFsThy(f_s_thy_q1, q1, d);
+    f_s_thy_q1 = buildFsThy(f_s_thy_q1, q1, d, steps);
     vector<double> f_s_thy_q2(steps);
-    f_s_thy_q2 = buildFsThy(f_s_thy_q2, q2, d);
+    f_s_thy_q2 = buildFsThy(f_s_thy_q2, q2, d, steps);
     vector<double> f_s_thy_q3(steps);
-    f_s_thy_q3 = buildFsThy(f_s_thy_q3, q3, d);
+    f_s_thy_q3 = buildFsThy(f_s_thy_q3, q3, d, steps);
 
     vector<vector<double> > theoryDists;
     theoryDists.push_back(mean_squares_thy);
