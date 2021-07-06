@@ -89,7 +89,7 @@ void buildPDist(vector<double> &p_dist, vector<double> &dataRun, int &runs, int 
     }
 
     // Fill elements
-    p_dist.at(dataRun.at(t) + steps) += 1.0; // Shifted origin to accommodate negative position values
+    p_dist.at(dataRun.at(t) + (steps - 1)) += 1.0; // Shifted origin to accommodate negative position values
 }
 
 /**
@@ -193,6 +193,7 @@ void printDistribution(vector<double> dist, string name) {
     for(int i = 1; i < dist.size(); i++) {
         printfile << endl << i << "," << dist.at(i);
     }
+    printfile.close();
 }
 
 /**
@@ -326,9 +327,9 @@ int main() {
 
     // Empty data vectors
     vector<double> mean_squares(steps, 0.0); // Mean square displacement as function of time
-    vector<double> p_dist_t1(2 * steps, 0.0); // Spatial probability distribution at time t
-    vector<double> p_dist_t2(2 * steps, 0.0);
-    vector<double> p_dist_t3(2 * steps, 0.0);
+    vector<double> p_dist_t1(2 * steps - 1, 0.0); // Spatial probability distribution at time t
+    vector<double> p_dist_t2(2 * steps - 1, 0.0);
+    vector<double> p_dist_t3(2 * steps - 1, 0.0);
     vector<double> f_s_q1(steps, 0.0); // Self-intermediate scattering funct. as function of time
     vector<double> f_s_q2(steps, 0.0); // with parameter q
     vector<double> f_s_q3(steps, 0.0);
@@ -374,8 +375,8 @@ int main() {
         dataDists.push_back(f_s_q1);
         dataDists.push_back(f_s_q2);
         dataDists.push_back(f_s_q3);
-        //cout << ">>>>>>>>>DATA<<<<<<<<<<" << endl;
-        //printToScreen(dataDists, countRuns, steps, q_vector, t_vector);
+        cout << ">>>>>>>>>DATA<<<<<<<<<<" << endl;
+        printToScreen(dataDists, countRuns, steps, q_vector, t_vector, d);
 
         // Increment counters
         startfile++; // Go to next datafile
@@ -402,11 +403,11 @@ int main() {
     dataDists.push_back(f_s_q1);
     dataDists.push_back(f_s_q2);
     dataDists.push_back(f_s_q3);
-    //cout << ">>>>>>>>>DATA<<<<<<<<<<" << endl;
-    //printToScreen(dataDists, countRuns, steps, q_vector, t_vector);
+    cout << ">>>>>>>>>DATA<<<<<<<<<<" << endl;
+    printToScreen(dataDists, countRuns, steps, q_vector, t_vector, d);
 
-    cout << ">>>>>>>>>THEORY<<<<<<<<<<" << endl;
-    printToScreen(theoryDists, countRuns, steps, q_vector, t_vector, d);
+    //cout << ">>>>>>>>>THEORY<<<<<<<<<<" << endl;
+    //printToScreen(theoryDists, countRuns, steps, q_vector, t_vector, d);
 
     //PRINT VECTORS TO FILES
     // Theory
