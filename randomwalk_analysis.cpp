@@ -136,7 +136,7 @@ void buildFs(vector<double> &f_s, vector<double> dataRun, double q, int steps) {
  * @param runs number of histories to be analyzed, used for averaging (int)
  * @param steps number of steps per run
  */
-vector<double> buildMSquareThy(vector<double> mean_squares_thy, int d, int runs) {
+vector<double> buildMSquareThy(vector<double> mean_squares_thy, double d, int runs) {
     for(int i = 0; i < mean_squares_thy.size(); i++) {
         mean_squares_thy.at(i) = 2.0 * d * i / runs;
     }
@@ -153,14 +153,13 @@ vector<double> buildMSquareThy(vector<double> mean_squares_thy, int d, int runs)
  * @param d diffusion coefficient (double)
  * @param t time in s at which to evaluate distribution (int)
  */
-vector<double> buildPDistThy(vector<double> p_dist_thy, int d, int t) {
+vector<double> buildPDistThy(vector<double> p_dist_thy, double d, int t) {
     double n = 1/sqrt(4 * M_PI * d * t);
     for(int i = 0; i < p_dist_thy.size(); i++) {
         p_dist_thy.at(i) = n * exp(-pow(i - (p_dist_thy.size() - 1) / 2, 2) / 4 / d / t); // Origin will be shifted to right by t
     }
     return p_dist_thy;
 }
-
 
 /**
  * buildFsThy
@@ -171,7 +170,7 @@ vector<double> buildPDistThy(vector<double> p_dist_thy, int d, int t) {
  * @param q parameter of f_s (double)
  * @param steps number of steps per run
  */
-vector<double> buildFsThy(vector<double> f_s_thy, int q, int d) {
+vector<double> buildFsThy(vector<double> f_s_thy, double q, double d) {
     for(int i = 0; i < f_s_thy.size(); i++) {
         f_s_thy.at(i) = exp(-pow(q, 2) * d * i);
     }
@@ -209,11 +208,12 @@ void normalize(vector<double> &dist, int runs) {
     }
 }
 
-void printToScreen(vector<vector<double> > dists, int runs, int steps, vector<double> qs, vector<int> ts){
+void printToScreen(vector<vector<double> > dists, int runs, int steps, vector<double> qs, vector<int> ts, double d){
     // Prints for debugging
     cout << endl << "**********************************************" << endl;
     cout << "Run: " << runs << endl;
     cout << "Steps: " << steps << endl;
+    cout << "Diffusion coefficient: " << d << endl;
     cout << "**********************************************" << endl << endl;
 
     // <r^2>
@@ -222,19 +222,19 @@ void printToScreen(vector<vector<double> > dists, int runs, int steps, vector<do
     cout << endl;
     for(int i = 0; i < dists.at(0).size(); i++) {
         cout << left << setw(10) << i;
-        cout << left << setw(10) << fixed << setprecision(2) << dists.at(0).at(i);
+        cout << left << setw(10) << fixed << setprecision(4) << dists.at(0).at(i);
         cout << endl;
     }
 
     // P(t)
     for(int i = 0; i < 3; i++) {
-        cout << left << setw(10) << "Time = " << ts.at(i) << endl;
-        for(int j = 0; j < 2 * steps; j++) {
+        cout << left << "Time = " << ts.at(i) << endl;
+        for(int j = 0; j <= 2 * steps; j++) {
             cout << left << setw(10) << "P(r = " + to_string(j - steps) + ")";
         }
         cout << endl;
         for(int j = 0; j < dists.at(i + 1).size(); j++) {
-            cout << left << setw(10) << fixed << setprecision(2) << dists.at(i + 1).at(j);
+            cout << left << setw(10) << fixed << setprecision(4) << dists.at(i + 1).at(j);
         }
         cout << endl;
 
@@ -247,7 +247,7 @@ void printToScreen(vector<vector<double> > dists, int runs, int steps, vector<do
         cout << endl;
         for(int j = 0; j < dists.at(i + 4).size(); j++) {
             cout << left << setw(10) << j;
-            cout << left << setw(10) << fixed << setprecision(2) << dists.at(i + 4).at(j);
+            cout << left << setw(10) << fixed << setprecision(4) << dists.at(i + 4).at(j);
             cout << endl;
         }
    }
@@ -315,6 +315,15 @@ int main() {
     vector<double> f_s_thy_q3(steps);
     f_s_thy_q3 = buildFsThy(f_s_thy_q3, q3, d);
 
+    vector<vector<double> > theoryDists;
+    theoryDists.push_back(mean_squares_thy);
+    theoryDists.push_back(p_dist_thy_t1);
+    theoryDists.push_back(p_dist_thy_t2);
+    theoryDists.push_back(p_dist_thy_t3);
+    theoryDists.push_back(f_s_thy_q1);
+    theoryDists.push_back(f_s_thy_q2);
+    theoryDists.push_back(f_s_thy_q3);
+
     // Empty data vectors
     vector<double> mean_squares(steps, 0.0); // Mean square displacement as function of time
     vector<double> p_dist_t1(2 * steps, 0.0); // Spatial probability distribution at time t
@@ -365,19 +374,8 @@ int main() {
         dataDists.push_back(f_s_q1);
         dataDists.push_back(f_s_q2);
         dataDists.push_back(f_s_q3);
-        cout << ">>>>>>>>>DATA<<<<<<<<<<" << endl;
+        //cout << ">>>>>>>>>DATA<<<<<<<<<<" << endl;
         //printToScreen(dataDists, countRuns, steps, q_vector, t_vector);
-
-        vector<vector<double> > theoryDists;
-        theoryDists.push_back(mean_squares_thy);
-        theoryDists.push_back(p_dist_thy_t1);
-        theoryDists.push_back(p_dist_thy_t2);
-        theoryDists.push_back(p_dist_thy_t3);
-        theoryDists.push_back(f_s_thy_q1);
-        theoryDists.push_back(f_s_thy_q2);
-        theoryDists.push_back(f_s_thy_q3);
-        cout << ">>>>>>>>>THEORY<<<<<<<<<<" << endl;
-        printToScreen(theoryDists, countRuns, steps, q_vector, t_vector);
 
         // Increment counters
         startfile++; // Go to next datafile
@@ -404,19 +402,11 @@ int main() {
     dataDists.push_back(f_s_q1);
     dataDists.push_back(f_s_q2);
     dataDists.push_back(f_s_q3);
-    cout << ">>>>>>>>>DATA<<<<<<<<<<" << endl;
+    //cout << ">>>>>>>>>DATA<<<<<<<<<<" << endl;
     //printToScreen(dataDists, countRuns, steps, q_vector, t_vector);
 
-    vector<vector<double> > theoryDists;
-    theoryDists.push_back(mean_squares_thy);
-    theoryDists.push_back(p_dist_thy_t1);
-    theoryDists.push_back(p_dist_thy_t2);
-    theoryDists.push_back(p_dist_thy_t3);
-    theoryDists.push_back(f_s_thy_q1);
-    theoryDists.push_back(f_s_thy_q2);
-    theoryDists.push_back(f_s_thy_q3);
     cout << ">>>>>>>>>THEORY<<<<<<<<<<" << endl;
-    printToScreen(theoryDists, countRuns, steps, q_vector, t_vector);
+    printToScreen(theoryDists, countRuns, steps, q_vector, t_vector, d);
 
     //PRINT VECTORS TO FILES
     // Theory
