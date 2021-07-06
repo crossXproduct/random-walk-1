@@ -136,13 +136,9 @@ void buildFs(vector<double> &f_s, vector<double> dataRun, double q, int steps) {
  * @param runs number of histories to be analyzed, used for averaging (int)
  * @param steps number of steps per run
  */
-vector<double> buildMSquareThy(int d, int runs, int steps) {
-    vector<double> mean_squares_thy;
-    for(int i = 0; i <= steps; i++) {
-        double m_square = 2.0 * d * i / runs;
-        if(i >= mean_squares_thy.size())
-            mean_squares_thy.push_back(m_square);
-        else mean_squares_thy.at(i) = m_square;
+vector<double> buildMSquareThy(vector<double> mean_squares_thy, int d, int runs) {
+    for(int i = 0; i < mean_squares_thy.size(); i++) {
+        mean_squares_thy.at(i) = 2.0 * d * i / runs;
     }
     return mean_squares_thy;
 }
@@ -157,14 +153,10 @@ vector<double> buildMSquareThy(int d, int runs, int steps) {
  * @param d diffusion coefficient (double)
  * @param t time in s at which to evaluate distribution (int)
  */
-vector<double> buildPDistThy(int d, int t, int steps) {
-    vector<double> p_dist_thy;
+vector<double> buildPDistThy(vector<double> p_dist_thy, int d, int t) {
     double n = 1/sqrt(4 * M_PI * d * t);
-    for(int i = (-steps * 2); i < (steps * 2); i++) {
-        double pdist_value = n * exp(-pow(i, 2) / 4 / d / t);
-        if(i + (steps * 2) >= p_dist_thy.size())
-            p_dist_thy.push_back(pdist_value);
-        else p_dist_thy.at(i + (steps * 2)) = pdist_value; // Origin will be shifted to right by t
+    for(int i = 0; i < p_dist_thy.size(); i++) {
+        p_dist_thy.at(i) = n * exp(-pow(i - (p_dist_thy.size() - 1) / 2, 2) / 4 / d / t); // Origin will be shifted to right by t
     }
     return p_dist_thy;
 }
@@ -179,13 +171,9 @@ vector<double> buildPDistThy(int d, int t, int steps) {
  * @param q parameter of f_s (double)
  * @param steps number of steps per run
  */
-vector<double> buildFsThy(int q, int d, int steps) {
-    vector<double> f_s_thy;
-    for(int i = 0; i <= steps; i++) {
-        double f_s_value = exp(-pow(q, 2) * d * i);
-        if(i >= f_s_thy.size())
-            f_s_thy.push_back(f_s_value);
-        else f_s_thy.at(i) = f_s_value;
+vector<double> buildFsThy(vector<double> f_s_thy, int q, int d) {
+    for(int i = 0; i < f_s_thy.size(); i++) {
+        f_s_thy.at(i) = exp(-pow(q, 2) * d * i);
     }
     return f_s_thy;
 }
@@ -312,13 +300,20 @@ int main() {
     int steps = getData(filename).size(); // Number of timesteps in each history (number of lines in first datafile)
 
     // Theory vectors (initialized)
-    vector<double> mean_squares_thy = buildMSquareThy(d, runs, steps);
-    vector<double> p_dist_thy_t1 = buildPDistThy(d, t1, steps);
-    vector<double> p_dist_thy_t2 = buildPDistThy(d, t2, steps);
-    vector<double> p_dist_thy_t3 = buildPDistThy(d, t3, steps);
-    vector<double> f_s_thy_q1 = buildFsThy(q1, d, steps);
-    vector<double> f_s_thy_q2 = buildFsThy(q2, d, steps);
-    vector<double> f_s_thy_q3 = buildFsThy(q3, d, steps);
+    vector<double> mean_squares_thy(steps);
+    mean_squares_thy = buildMSquareThy(mean_squares_thy, d, runs);
+    vector<double> p_dist_thy_t1(steps * 2 + 1);
+    p_dist_thy_t1 = buildPDistThy(p_dist_thy_t1, d, t1);
+    vector<double> p_dist_thy_t2(steps * 2 + 1);
+    p_dist_thy_t2 = buildPDistThy(p_dist_thy_t2, d, t2);
+    vector<double> p_dist_thy_t3(steps * 2 + 1);
+    p_dist_thy_t3 = buildPDistThy(p_dist_thy_t3, d, t3);
+    vector<double> f_s_thy_q1(steps);
+    f_s_thy_q1 = buildFsThy(f_s_thy_q1, q1, d);
+    vector<double> f_s_thy_q2(steps);
+    f_s_thy_q2 = buildFsThy(f_s_thy_q2, q2, d);
+    vector<double> f_s_thy_q3(steps);
+    f_s_thy_q3 = buildFsThy(f_s_thy_q3, q3, d);
 
     // Empty data vectors
     vector<double> mean_squares(steps, 0.0); // Mean square displacement as function of time
@@ -371,7 +366,7 @@ int main() {
         dataDists.push_back(f_s_q2);
         dataDists.push_back(f_s_q3);
         cout << ">>>>>>>>>DATA<<<<<<<<<<" << endl;
-        printToScreen(dataDists, countRuns, steps, q_vector, t_vector);
+        //printToScreen(dataDists, countRuns, steps, q_vector, t_vector);
 
         vector<vector<double> > theoryDists;
         theoryDists.push_back(mean_squares_thy);
@@ -382,7 +377,7 @@ int main() {
         theoryDists.push_back(f_s_thy_q2);
         theoryDists.push_back(f_s_thy_q3);
         cout << ">>>>>>>>>THEORY<<<<<<<<<<" << endl;
-        //printToScreen(theoryDists, countRuns, steps, q_vector, t_vector);
+        printToScreen(theoryDists, countRuns, steps, q_vector, t_vector);
 
         // Increment counters
         startfile++; // Go to next datafile
@@ -410,7 +405,7 @@ int main() {
     dataDists.push_back(f_s_q2);
     dataDists.push_back(f_s_q3);
     cout << ">>>>>>>>>DATA<<<<<<<<<<" << endl;
-    printToScreen(dataDists, countRuns, steps, q_vector, t_vector);
+    //printToScreen(dataDists, countRuns, steps, q_vector, t_vector);
 
     vector<vector<double> > theoryDists;
     theoryDists.push_back(mean_squares_thy);
@@ -421,7 +416,7 @@ int main() {
     theoryDists.push_back(f_s_thy_q2);
     theoryDists.push_back(f_s_thy_q3);
     cout << ">>>>>>>>>THEORY<<<<<<<<<<" << endl;
-    //printToScreen(theoryDists, countRuns, steps, q_vector, t_vector);
+    printToScreen(theoryDists, countRuns, steps, q_vector, t_vector);
 
     //PRINT VECTORS TO FILES
     // Theory
