@@ -3,10 +3,9 @@
  * E. Aaron
  * 06-23-2021
  *
- * Reads a series of files containing individual thermal histories (created by randomwalk.cpp),
- * and constructs the mean square displacement as a function of time, the spatial probability
- * distribution at three specified times, and the self-intermediate scattering
- * function for three specified values of parameter q.
+ * Generates an executable ("analyze") that reads a series of files containing individual thermal histories (created by randomwalk.cpp),
+ * and constructs the mean square displacement as a function of time, the spatial probability distribution at three specified times,
+ * and the self-intermediate scattering function for three specified values of parameter q.
  */
 
 #include <cstdlib>
