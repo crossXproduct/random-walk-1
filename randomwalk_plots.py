@@ -1,5 +1,7 @@
-## THIS IS A TEMPLATE...use plots.py inside each data directory to get
-# the plots for each respective dataset.
+## THIS IS A TEMPLATE...use plots.py inside each data directory to get the plots for respective dataset.
+
+## E. Aaron
+## 07-07-2021
 ## Plots data and theory against hand checks, as well as data against theory. 14 plots total.
 
 import matplotlib.pyplot as plt

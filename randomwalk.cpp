@@ -21,29 +21,41 @@
 using namespace std;
 
 ///FUNCTION DECLARATIONS (DEFINITIONS BELOW MAIN)
-void runSpecs(int &num_histories, int &num_steps, char * folder); //Process user input for number of runs and steps per run
+//void runSpecs(int &num_histories, int &num_steps, string folder_pointer); //Process user input for number of runs and steps per run
 void history(const int &num_steps, const string &filename); //Generate a single history and print to file
-void recordHistories(const int &num_histories, const int &num_steps, char * &folder); //Generate histories and generate datafiles for specified number of runs
-string createPath(char * &folder); //Generate destination filename for data
+void recordHistories(const int &num_histories, const int &num_steps, const char *folder_pointer); //Generate histories and generate datafiles for specified number of runs
+string createPath(const char *folder_pointer); //Generate destination filename for data
 
 
 int main() {
     int num_histories;
     int num_steps;
-    char *folder;
-    runSpecs(num_histories, num_steps, folder);
-    recordHistories(num_histories, num_steps, folder);
-    return 0;
-} ///main
-
-void runSpecs(int &num_histories, int &num_steps, char * folder) {
+    //string folder_pointer;
+    char *folder_pointer = new char[20];
     cout << "Number of histories: ";
     cin >> num_histories;
     cout << "Number of steps per history: ";
     cin >> num_steps;
     cout << "Folder: ";
-    cin >> folder;
+    cin >> folder_pointer;
+
+    //cout << folder_pointer[1] << endl;
+
+    //runSpecs(num_histories, num_steps, folder_pointer);
+    recordHistories(num_histories, num_steps, folder_pointer);
+    return 0;
+} ///main
+
+/*
+void runSpecs(int &num_histories, int &num_steps, string folder_pointer) {
+    cout << "Number of histories: ";
+    cin >> num_histories;
+    cout << "Number of steps per history: ";
+    cin >> num_steps;
+    cout << "Folder: ";
+    cin >> folder_pointer;
 }
+*/
 
 void history(const int &num_steps, const string &filename) {
     ///Open file stream
@@ -64,23 +76,35 @@ void history(const int &num_steps, const string &filename) {
     file.close();
 }
 
-void recordHistories(const int &num_histories, const int &num_steps, char * &folder) {
+void recordHistories(const int &num_histories, const int &num_steps, const char *folder_pointer) {
     for(int i = 0; i < num_histories; i++) {
         srand(i);
-        history(num_steps, createPath(folder));
+        history(num_steps, createPath(folder_pointer));
     }
 }
 
-string createPath(char * &folder) {
+string createPath(const char *folder_pointer) {
     ifstream file;
     char number1 = ' ' - 32; //ASCII number 0
     char number2 = ' ' - 32;
     string fullpath = "";
 
-    if (mkdir(folder, 0777) == -1)
-        cerr << "Error :  " << strerror(errno) << endl;
+    //const char* directory = new char[folder_pointer.length()];
+    //directory = folder_pointer;
+    string folder_name;
+    int i = 0;
+    while(folder_pointer[i] != '\0') {
+        folder_name += to_string(stoi(to_string(folder_pointer[i])) - 48);
+        i++;
+    }
+    cout << "Name: " << folder_name << endl;
 
-    else cout << "Folder " << folder << " created." << endl;
+
+    if (mkdir(folder_pointer, 0777) == -1)
+        cout << "Folder " << folder_name << " exists." << endl;
+        //cerr << "Error :  " << strerror(errno) << endl;
+
+    else cout << "Folder " << folder_pointer << " created." << endl;
 
     do { //Search for filename that does not yet exist, and create the file
 
@@ -95,7 +119,8 @@ string createPath(char * &folder) {
             }
         else number2++;
 
-        fullpath = to_string(folder) + "/history" + to_string(number1) + to_string(number2) + ".dat";
+        fullpath = folder_name + "/history" + to_string(number1) + to_string(number2) + ".dat";
+        //cout << "fullpath: " << fullpath;
         file.open(fullpath);
 
     } while(file.peek() != EOF); //if file is NOT blank, try again
