@@ -1,9 +1,11 @@
+## THIS IS A TEMPLATE...use plots.py inside each data directory to get
+# the plots for each respective dataset.
+## Plots data and theory against hand checks, as well as data against theory. 14 plots total.
+
 import matplotlib.pyplot as plt
 import numpy as np
 
-
-
-#DATA & CHECKS
+##DATA & CHECKS
 
 #mean square displacement data
 XMS, YMS = np.loadtxt('mean_squares.dat', delimiter=',', unpack=True)
@@ -47,7 +49,7 @@ XF3H = (0,1,2,3,4)
 YF3H = np.loadtxt('handcheck_f_s_q3.dat', unpack=True)
 
 
-#THEORY & CHECKS
+##THEORY & CHECKS
 
 #mean square displacement theory
 XMS_T, YMS_T = np.loadtxt('mean_squares_thy.dat', delimiter=',', unpack=True)
@@ -91,12 +93,241 @@ XF3H_T = (0,1,2,3,4)
 YF3H_T = np.loadtxt('handcheck_f_s_thy_q3.dat', unpack=True)
 
 
-#PLOTS
+##PLOTS
+
+#DATA WITH CHECKS
+
+#mean_squares
+plt.scatter(XMS, YMS, color='cyan')
+plt.scatter(XMSH, YMSH, marker='x', color='orange')
+
+plt.title('mean square displacement')
+plt.xlabel('time')
+plt.ylabel('<r^2>')
+plt.legend(["Data","Checks"])
+plt.savefig("mean_squares: Data and Checks.png")
+plt.clf()
+
+#p_dist_t1
+plt.scatter(XP1, YP1, color='cyan')
+plt.scatter(XP1H, YP1H, marker='x', color='orange')
+
+plt.title('Probability Distribution at t=1')
+plt.xlabel('displacement')
+plt.ylabel('probability')
+plt.legend(["Data","Checks"])
+plt.savefig("p_dist_t1: Data and Checks.png")
+plt.clf()
+
+#p_dist_t2
+plt.scatter(XP2, YP2, color='cyan')
+plt.scatter(XP2H, YP2H, marker='x', color='orange')
+
+plt.title('Probability Distribution at t=2')
+plt.xlabel('displacement')
+plt.ylabel('probability')
+plt.legend(["Data","Checks"])
+plt.savefig("p_dist_t2: Data and Checks.png")
+plt.clf()
+
+#p_dist_t3
 plt.scatter(XP3, YP3, color='cyan')
-plt.scatter(XP3_T, YP3_T, color='orange')
+plt.scatter(XP3H, YP3H, marker='x', color='orange')
+
+plt.title('Probability Distribution at t=3')
+plt.xlabel('displacement')
+plt.ylabel('probability')
+plt.legend(["Data","Checks"])
+plt.savefig("p_dist_t3: Data and Checks.png")
+plt.clf()
+
+#f_s_q1
+plt.scatter(XF1, YF1, color='cyan')
+plt.scatter(XF1H, YF1H, marker='x', color='orange')
+
+plt.title('f_s for q1')
+plt.xlabel('time')
+plt.ylabel('f_s')
+plt.legend(["Data","Checks"])
+plt.savefig("f_s_q1: Data and Checks.png")
+plt.clf()
+
+#f_s_q2
+plt.scatter(XF2, YF2, color='cyan')
+plt.scatter(XF2H, YF2H, marker='x', color='orange')
+
+plt.title('f_s for q2')
+plt.xlabel('time')
+plt.ylabel('f_s')
+plt.legend(["Data","Checks"])
+plt.savefig("f_s_q2: Data and Checks.png")
+plt.clf()
+
+#f_s_q3
+plt.scatter(XF3, YF3, color='cyan')
+plt.scatter(XF3H, YF3H, marker='x', color='orange')
+
+plt.title('f_s for q3')
+plt.xlabel('time')
+plt.ylabel('f_s')
+plt.legend(["Data","Checks"])
+plt.savefig("f_s_q3: Data and Checks.png")
+plt.clf()
+
+#THEORY WITH CHECKS
+
+#mean_squares
+plt.scatter(XMS_T, YMS_T, color='cyan')
+plt.scatter(XMSH_T, YMSH_T, marker='x', color='orange')
+
+plt.title('mean square displacement')
+plt.xlabel('time')
+plt.ylabel('<r^2>')
+plt.legend(["Theory","Checks"])
+plt.savefig("mean_squares: Theory and Checks.png")
+plt.clf()
+
+#p_dist_t1
+plt.scatter(XP1_T, YP1_T, color='cyan')
+plt.scatter(XP1H_T, YP1H_T, marker='x', color='orange')
+
+plt.title('Probability Distribution at t=1')
+plt.xlabel('displacement')
+plt.ylabel('probability')
+plt.legend(["Theory","Checks"])
+plt.savefig("p_dist_t1: Theory and Checks.png")
+plt.clf()
+
+#p_dist_t2
+plt.scatter(XP2_T, YP2_T, color='cyan')
+plt.scatter(XP2H_T, YP2H_T, marker='x', color='orange')
+
+plt.title('Probability Distribution at t=2')
+plt.xlabel('displacement')
+plt.ylabel('probability')
+plt.legend(["Theory","Checks"])
+plt.savefig("p_dist_t2: Theory and Checks.png")
+plt.clf()
+
+#p_dist_t3
+plt.scatter(XP3_T, YP3_T, color='cyan')
+plt.scatter(XP3H_T, YP3H_T, marker='x', color='orange')
+
+plt.title('Probability Distribution at t=3')
+plt.xlabel('displacement')
+plt.ylabel('probability')
+plt.legend(["Theory","Checks"])
+plt.savefig("p_dist_t3: Theory and Checks.png")
+plt.clf()
+
+#f_s_q1
+plt.scatter(XF1_T, YF1_T, color='cyan')
+plt.scatter(XF1H_T, YF1H_T, marker='x', color='orange')
+
+plt.title('f_s for q1')
+plt.xlabel('time')
+plt.ylabel('f_s')
+plt.legend(["Theory","Checks"])
+plt.savefig("f_s_q1: Theory and Checks.png")
+plt.clf()
+
+#f_s_q2
+plt.scatter(XF2_T, YF2_T, color='cyan')
+plt.scatter(XF2H_T, YF2H_T, marker='x', color='orange')
+
+plt.title('f_s for q2')
+plt.xlabel('time')
+plt.ylabel('f_s')
+plt.legend(["Theory","Checks"])
+plt.savefig("f_s_q2: Theory and Checks.png")
+plt.clf()
+
+#f_s_q3
+plt.scatter(XF3_T, YF3_T, color='cyan')
+plt.scatter(XF3H_T, YF3H_T, marker='x', color='orange')
+
+plt.title('f_s for q3')
+plt.xlabel('time')
+plt.ylabel('f_s')
+plt.legend(["Theory","Checks"])
+plt.savefig("f_s_q3: Theory and Checks.png")
+plt.clf()
+
+#DATA WITH THEORY
+
+#mean_squares
+plt.scatter(XMS, YMS, color='cyan')
+plt.scatter(XMS_T, YMS_T, marker='x', color='orange')
+
+plt.title('mean square displacement')
+plt.xlabel('time')
+plt.ylabel('<r^2>')
+plt.legend(["Data","Theory"])
+plt.savefig("mean_squares: Data and Theory.png")
+plt.clf()
+
+#p_dist_t1
+plt.scatter(XP1, YP1, color='cyan')
+plt.scatter(XP1_T, YP1_T, marker='x', color='orange')
+
+plt.title('Probability Distribution at t=1')
+plt.xlabel('displacement')
+plt.ylabel('probability')
+plt.legend(["Data","Theory"])
+plt.savefig("p_dist_t1: Data and Theory.png")
+plt.clf()
+
+#p_dist_t2
+plt.scatter(XP2, YP2, color='cyan')
+plt.scatter(XP2_T, YP2_T, marker='x', color='orange')
+
+plt.title('Probability Distribution at t=2')
+plt.xlabel('displacement')
+plt.ylabel('probability')
+plt.legend(["Data","Theory"])
+plt.savefig("p_dist_t2: Data and Theory.png")
+plt.clf()
+
+#p_dist_t3
+plt.scatter(XP3, YP3, color='cyan')
+plt.scatter(XP3_T, YP3_T, marker='x', color='orange')
 
 plt.title('Probability Distribution at t=3')
 plt.xlabel('displacement')
 plt.ylabel('probability')
 plt.legend(["Data","Theory"])
-plt.show()
+plt.savefig("p_dist_t3: Data and Theory.png")
+plt.clf()
+
+#f_s_q1
+plt.scatter(XF1, YF1, color='cyan')
+plt.scatter(XF1_T, YF1_T, marker='x', color='orange')
+
+plt.title('f_s for q1')
+plt.xlabel('time')
+plt.ylabel('f_s')
+plt.legend(["Data","Theory"])
+plt.savefig("f_s_q1: Data and Theory.png")
+plt.clf()
+
+#f_s_q2
+plt.scatter(XF2, YF2, color='cyan')
+plt.scatter(XF2_T, YF2_T, marker='x', color='orange')
+
+plt.title('f_s for q2')
+plt.xlabel('time')
+plt.ylabel('f_s')
+plt.legend(["Data","Theory"])
+plt.savefig("f_s_q2: Data and Theory.png")
+plt.clf()
+
+#f_s_q3
+plt.scatter(XF3, YF3, color='cyan')
+plt.scatter(XF3_T, YF3_T, marker='x', color='orange')
+
+plt.title('f_s for q3')
+plt.xlabel('time')
+plt.ylabel('f_s')
+plt.legend(["Data","Theory"])
+plt.savefig("f_s_q3: Data and Theory.png")
+plt.clf()
