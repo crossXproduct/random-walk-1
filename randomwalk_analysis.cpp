@@ -121,7 +121,7 @@ void buildMSquare(vector<double> &mean_squares, vector<double> &dataRun, int &ru
  */
 void buildFs(vector<double> &f_s, vector<double> &dataRun, double &q, int &steps) {
     for(int i = 0; i < steps; i++) {
-        f_s.at(i) += cos(q * dataRun.at(i));
+        f_s.at(i) += q * dataRun.at(i);
     }
 }
 
@@ -137,7 +137,7 @@ void buildFs(vector<double> &f_s, vector<double> &dataRun, double &q, int &steps
  */
 vector<double> buildMSquareThy(vector<double> &mean_squares_thy, double &d, int &runs) {
     for(int i = 0; i < mean_squares_thy.size(); i++) {
-        mean_squares_thy.at(i) = 2.0 * d * i / runs;
+        mean_squares_thy.at(i) = 2.0 * d * i;
     }
     return mean_squares_thy;
 }
@@ -381,6 +381,17 @@ int main() {
         startfile++; // Go to next datafile
         countRuns++;
     } while(startfile <= endfile);
+
+    //FINISH F_S(q) CALCULATION
+    for(int i = 0; i < steps; i++) {
+        f_s_q1.at(i) = cos(f_s_q1.at(i));
+    }
+    for(int i = 0; i < steps; i++) {
+        f_s_q2.at(i) = cos(f_s_q2.at(i));
+    }
+    for(int i = 0; i < steps; i++) {
+        f_s_q3.at(i) = cos(f_s_q3.at(i));
+    }
 
     //NORMALIZE DATA VECTORS
     normalize(mean_squares, runs);
