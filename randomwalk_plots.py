@@ -107,7 +107,7 @@ plt.title('mean square displacement')
 plt.xlabel('time')
 plt.ylabel('<r^2>')
 plt.legend(["Data","Checks"])
-plt.savefig("mean_squares: Data and Checks.png")
+plt.savefig("mean_squares_data_checks.png")
 plt.clf()
 
 #p_dist_t1
