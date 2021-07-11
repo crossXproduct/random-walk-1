@@ -400,9 +400,9 @@ int main() {
     normalize(p_dist_t2, runs);
     normalize(p_dist_t3, runs);
 
-    normalize(f_s_q1, runs);
-    normalize(f_s_q2, runs);
-    normalize(f_s_q3, runs);
+    //normalize(f_s_q1, runs);
+    //normalize(f_s_q2, runs);
+    //normalize(f_s_q3, runs);
 
     //PRINTS FOR DEBUGGING
     vector<vector<double> > dataDists;
