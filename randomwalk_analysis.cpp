@@ -78,7 +78,7 @@ vector<double> getData(string filename) {
  *               by reference from main (vector double)
  * @param dataRun total displacements for a single history (vector double)
  */
-void buildPDist(vector<double> &p_dist, vector<double> &dataRun, int &runs, int &steps, int t) {
+void buildPDist(vector<double> &p_dist, vector<double> &dataRun, int &steps, int t) {
     // Reject invalid input
     if(t > dataRun.size()) {
         cout << "******" << endl;
@@ -101,7 +101,7 @@ void buildPDist(vector<double> &p_dist, vector<double> &dataRun, int &runs, int 
  * @param dataRun total displacements for a single history (vector double)
  * @param runs number of histories to be analyzed, used for averaging (int)
  */
-void buildMSquare(vector<double> &mean_squares, vector<double> &dataRun, int &runs, int &steps) {
+void buildMSquare(vector<double> &mean_squares, vector<double> &dataRun, int &steps) {
     // Fill vector
     for(int i = 0; i < steps; i++) {
         mean_squares.at(i) += pow(dataRun.at(i), 2); // Push to vector
@@ -121,7 +121,7 @@ void buildMSquare(vector<double> &mean_squares, vector<double> &dataRun, int &ru
  */
 void buildFs(vector<double> &f_s, vector<double> &dataRun, double &q, int &steps) {
     for(int i = 0; i < steps; i++) {
-        f_s.at(i) += q * dataRun.at(i);
+        f_s.at(i) += cos(q * dataRun.at(i));
     }
 }
 
@@ -135,7 +135,7 @@ void buildFs(vector<double> &f_s, vector<double> &dataRun, double &q, int &steps
  * @param runs number of histories to be analyzed, used for averaging (int)
  * @param steps number of steps per run
  */
-vector<double> buildMSquareThy(vector<double> &mean_squares_thy, double &d, int &runs) {
+vector<double> buildMSquareThy(vector<double> &mean_squares_thy, double &d) {
     for(int i = 0; i < mean_squares_thy.size(); i++) {
         mean_squares_thy.at(i) = 2.0 * d * i;
     }
@@ -301,7 +301,7 @@ int main() {
 
     // Theory vectors (initialized)
     vector<double> mean_squares_thy(steps);
-    mean_squares_thy = buildMSquareThy(mean_squares_thy, d, runs);
+    mean_squares_thy = buildMSquareThy(mean_squares_thy, d);
     vector<double> p_dist_thy_t1(steps * 2 - 1);
     p_dist_thy_t1 = buildPDistThy(p_dist_thy_t1, d, t1, steps);
     vector<double> p_dist_thy_t2(steps * 2 - 1);
@@ -351,12 +351,12 @@ int main() {
         steps = history.size();
 
         // Mean square displacement as a function of time
-        buildMSquare(mean_squares, history, runs, steps);
+        buildMSquare(mean_squares, history, steps);
 
         // Probability distributions as functions of position at time t
-        buildPDist(p_dist_t1, history, runs, steps, t1);
-        buildPDist(p_dist_t2, history, runs, steps, t2);
-        buildPDist(p_dist_t3, history, runs, steps, t3);
+        buildPDist(p_dist_t1, history, steps, t1);
+        buildPDist(p_dist_t2, history, steps, t2);
+        buildPDist(p_dist_t3, history, steps, t3);
 
         // Self-intermediate scattering functions as a function of time
 
@@ -375,23 +375,12 @@ int main() {
         dataDists.push_back(f_s_q2);
         dataDists.push_back(f_s_q3);
         cout << ">>>>>>>>>DATA<<<<<<<<<<" << endl;
-        printToScreen(dataDists, countRuns, steps, q_vector, t_vector, d);
+        //printToScreen(dataDists, countRuns, steps, q_vector, t_vector, d);
 
         // Increment counters
         startfile++; // Go to next datafile
         countRuns++;
     } while(startfile <= endfile);
-
-    //FINISH F_S(q) CALCULATION
-    for(int i = 0; i < steps; i++) {
-        f_s_q1.at(i) = cos(f_s_q1.at(i));
-    }
-    for(int i = 0; i < steps; i++) {
-        f_s_q2.at(i) = cos(f_s_q2.at(i));
-    }
-    for(int i = 0; i < steps; i++) {
-        f_s_q3.at(i) = cos(f_s_q3.at(i));
-    }
 
     //NORMALIZE DATA VECTORS
     normalize(mean_squares, runs);
@@ -400,9 +389,9 @@ int main() {
     normalize(p_dist_t2, runs);
     normalize(p_dist_t3, runs);
 
-    //normalize(f_s_q1, runs);
-    //normalize(f_s_q2, runs);
-    //normalize(f_s_q3, runs);
+    normalize(f_s_q1, runs);
+    normalize(f_s_q2, runs);
+    normalize(f_s_q3, runs);
 
     //PRINTS FOR DEBUGGING
     vector<vector<double> > dataDists;
@@ -414,7 +403,7 @@ int main() {
     dataDists.push_back(f_s_q2);
     dataDists.push_back(f_s_q3);
     cout << ">>>>>>>>>DATA<<<<<<<<<<" << endl;
-    printToScreen(dataDists, countRuns, steps, q_vector, t_vector, d);
+    //printToScreen(dataDists, countRuns, steps, q_vector, t_vector, d);
 
     //cout << ">>>>>>>>>THEORY<<<<<<<<<<" << endl;
     //printToScreen(theoryDists, countRuns, steps, q_vector, t_vector, d);
