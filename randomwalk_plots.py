@@ -263,7 +263,7 @@ plt.clf() """
 #DATA WITH THEORY
 #mean_squares
 plt.scatter(XMS, YMS, color='cyan')
-plt.scatter(XMS_T, YMS_T, marker='x', color='orange')
+plt.scatter(XMS_T, YMS_T, marker='.', color='orange')
 
 plt.title('mean square displacement')
 plt.xlabel('time')
@@ -274,7 +274,7 @@ plt.clf()
 
 #p_dist_t1
 plt.scatter(XP1, YP1, color='cyan')
-plt.scatter(XP1_T, YP1_T, marker='x', color='orange')
+plt.scatter(XP1_T, YP1_T, marker='.', color='orange')
 
 plt.title('Probability Distribution at t=1')
 plt.xlabel('displacement')
@@ -285,7 +285,7 @@ plt.clf()
 
 #p_dist_t2
 plt.scatter(XP2, YP2, color='cyan')
-plt.scatter(XP2_T, YP2_T, marker='x', color='orange')
+plt.scatter(XP2_T, YP2_T, marker='.', color='orange')
 
 plt.title('Probability Distribution at t=2')
 plt.xlabel('displacement')
@@ -296,7 +296,7 @@ plt.clf()
 
 #p_dist_t3
 plt.scatter(XP3, YP3, color='cyan')
-plt.scatter(XP3_T, YP3_T, marker='x', color='orange')
+plt.scatter(XP3_T, YP3_T, marker='.', color='orange')
 
 plt.title('Probability Distribution at t=3')
 plt.xlabel('displacement')
@@ -307,7 +307,7 @@ plt.clf()
 
 #f_s_q1
 plt.scatter(XF1, YF1, color='cyan')
-plt.scatter(XF1_T, YF1_T, marker='x', color='orange')
+plt.scatter(XF1_T, YF1_T, marker='.', color='orange')
 
 plt.title('f_s for q1')
 plt.xlabel('time')
@@ -318,7 +318,7 @@ plt.clf()
 
 #f_s_q2
 plt.scatter(XF2, YF2, color='cyan')
-plt.scatter(XF2_T, YF2_T, marker='x', color='orange')
+plt.scatter(XF2_T, YF2_T, marker='.', color='orange')
 
 plt.title('f_s for q2')
 plt.xlabel('time')
@@ -329,7 +329,7 @@ plt.clf()
 
 #f_s_q3
 plt.scatter(XF3, YF3, color='cyan')
-plt.scatter(XF3_T, YF3_T, marker='x', color='orange')
+plt.scatter(XF3_T, YF3_T, marker='.', color='orange')
 
 plt.title('f_s for q3')
 plt.xlabel('time')
