@@ -25,10 +25,9 @@ using namespace std;
  * getData
  * Creates and returns a vector version of a datafile specified in call.
  *
- * @param filename - name of datafile from main (string)
- * @param steps - number of steps per run, taken by reference from main and set to number
- *                of lines in datafile (int)
- * @return dataRun - vector of total displacements, one per element (vector double)
+ * @param filename name of datafile from main (string)
+ *                   of lines in datafile (int)
+ * @return vector of total displacements (doubles), one per element
  */
 vector<double> getData(string filename) {
     ifstream file; // Create file stream
@@ -77,6 +76,8 @@ vector<double> getData(string filename) {
  * @param p_dist probability distribution as function of discrete position, taken
  *               by reference from main (vector double)
  * @param dataRun total displacements for a single history (vector double)
+ * @param steps number of steps per run (int)
+ * @param t time at which P(R(t)) is to be evaluated (int)
  */
 void buildPDist(vector<double> &p_dist, vector<double> &dataRun, int &steps, int t) {
     // Reject invalid input
@@ -99,7 +100,7 @@ void buildPDist(vector<double> &p_dist, vector<double> &dataRun, int &steps, int
  * @param mean_squares mean square displacement as function of discrete time, taken
  *                       by reference from main (vector double)
  * @param dataRun total displacements for a single history (vector double)
- * @param runs number of histories to be analyzed, used for averaging (int)
+ * @param steps number of steps per run (int)
  */
 void buildMSquare(vector<double> &mean_squares, vector<double> &dataRun, int &steps) {
     // Fill vector
@@ -116,8 +117,7 @@ void buildMSquare(vector<double> &mean_squares, vector<double> &dataRun, int &st
  * @param f_s self-intermediate scattering function, taken by reference from main (vector double)
  * @param dataRun total displacements for a single history (vector double)
  * @param q parameter of f_s (double)
- * @param runs number of histories to be analyzed, used for averaging (int)
- * @param steps number of timesteps
+ * @param steps number of steps per run (int)
  */
 void buildFs(vector<double> &f_s, vector<double> &dataRun, double &q, int &steps) {
     for(int i = 0; i < steps; i++) {
@@ -133,7 +133,9 @@ void buildFs(vector<double> &f_s, vector<double> &dataRun, double &q, int &steps
  *                           taken by reference from main (vector double)
  * @param d diffusion coefficient (double)
  * @param runs number of histories to be analyzed, used for averaging (int)
- * @param steps number of steps per run
+ * @param steps number of steps per run (int)
+ *
+ * @return vector of square displacements (doubles) whose indices are the times...to be normalized later
  */
 vector<double> buildMSquareThy(vector<double> &mean_squares_thy, double &d) {
     for(int i = 0; i < mean_squares_thy.size(); i++) {
@@ -151,6 +153,9 @@ vector<double> buildMSquareThy(vector<double> &mean_squares_thy, double &d) {
  *                   taken by reference from main (vector double)
  * @param d diffusion coefficient (double)
  * @param t time in s at which to evaluate distribution (int)
+ * @param steps number of steps per run (int)
+ *
+ * @return vector of (NOT normalized) probabilities (doubles) whose indices are displacement values
  */
 vector<double> buildPDistThy(vector<double> &p_dist_thy, double &d, int &t, int &steps) {
     double n = 1/sqrt(4 * M_PI * d * t);
@@ -167,7 +172,10 @@ vector<double> buildPDistThy(vector<double> &p_dist_thy, double &d, int &t, int 
  *
  * @param f_s_thy theoretical self-intermediate scattering function, taken by reference from main (vector double)
  * @param q parameter of f_s (double)
+ * @param d diffusion coefficient (double)
  * @param steps number of steps per run
+ *
+ * @return vector of self-intermediate scattering function values (doubles) whose indices are times
  */
 vector<double> buildFsThy(vector<double> &f_s_thy, double &q, double &d, int &steps) {
     for(int i = 0; i < f_s_thy.size(); i++) {
@@ -181,9 +189,8 @@ vector<double> buildFsThy(vector<double> &f_s_thy, double &q, double &d, int &st
  * prints specified vector elements to a file, one element per line. First line is the "origin"
  * or "zero" of respective distribution.
  *
- * @param f_s_thy theoretical self-intermediate scattering function, taken by reference from main (vector double)
- * @param q parameter of f_s (double)
- * @param steps number of steps per run
+ * @param dist vector of doubles to be printed to file
+ * @param name string denoting name of file to be created / written to
  */
 void printDistribution(vector<double> dist, string name) {
     ofstream printfile;
@@ -199,8 +206,8 @@ void printDistribution(vector<double> dist, string name) {
  * normalize
  * divides each element of a vector distribution by the number of histories.
  *
- * @param dist probability or other distribution from history data to be normalized. Taken by reference.
- * @param runs number of histories used to generate the distribution.
+ * @param dist vector of doubles to be normalized W.R.T. number of runs
+ * @param runs number of histories ("runs") used to generate distribution (int)
  */
 void normalize(vector<double> &dist, int runs) {
     for(int i = 0; i < dist.size(); i++) {
@@ -208,6 +215,17 @@ void normalize(vector<double> &dist, int runs) {
     }
 }
 
+/**
+ * printToScreen
+ * divides each element of a vector distribution by the number of histories.
+ *
+ * @param dists vector of vector<double>s to be shown on screen
+ * @param runs number of histories ("runs") used to generate distribution (int)
+ * @param steps number of steps per run
+ * @param qs vector of doubles containing q values at which f_s is evaluated
+ * @param ts vector of doubles containing time values at which P(R(t)) is evaluated
+ * @param d diffusion coefficient (double)
+ */
 void printToScreen(vector<vector<double> > dists, int runs, int steps, vector<double> qs, vector<int> ts, double d){
     // Prints for debugging
     cout << endl << "**********************************************" << endl;
