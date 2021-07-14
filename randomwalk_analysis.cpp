@@ -112,7 +112,7 @@ void buildMSquare(vector<double> &mean_squares, vector<double> &dataRun, int &st
 /**
  * buildFs
  * initializes a vector version of the self-intermediate scattering function for
- * specified history. Each element is a bin whose index is the time (or number of steps).
+ * specified history. Each element is a bin whose index is a time (or number of steps elapsed).
  *
  * @param f_s self-intermediate scattering function, taken by reference from main (vector double)
  * @param dataRun total displacements for a single history (vector double)
@@ -211,7 +211,7 @@ void printDistribution(vector<double> dist, string name) {
  */
 void normalize(vector<double> &dist, int runs) {
     for(int i = 0; i < dist.size(); i++) {
-        dist.at(i) /= runs;
+        dist.at(i) /= runs * 1.0;
     }
 }
 
@@ -333,6 +333,7 @@ int main() {
     vector<double> f_s_thy_q3(steps);
     f_s_thy_q3 = buildFsThy(f_s_thy_q3, q3, d, steps);
 
+    /* For debugging, used by printToScreen()
     vector<vector<double> > theoryDists;
     theoryDists.push_back(mean_squares_thy);
     theoryDists.push_back(p_dist_thy_t1);
@@ -341,6 +342,7 @@ int main() {
     theoryDists.push_back(f_s_thy_q1);
     theoryDists.push_back(f_s_thy_q2);
     theoryDists.push_back(f_s_thy_q3);
+    */
 
     // Empty data vectors
     vector<double> mean_squares(steps, 0.0); // Mean square displacement as function of time
