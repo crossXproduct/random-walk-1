@@ -357,6 +357,7 @@ int main() {
     ifstream file; // File input stream for reading data
     int countRuns = 1; // Counter for debugging
     do {
+        cout << "Run " << countRuns << " of " << runs << endl;
         if(startfile < 10) {
             filename = "history0" + to_string(startfile) + ".dat";
         }
@@ -453,6 +454,8 @@ int main() {
     printDistribution(f_s_q1, "f_s_q1");
     printDistribution(f_s_q2, "f_s_q2");
     printDistribution(f_s_q3, "f_s_q3");
+
+    cout << "Done";
 
     return 0;
 } ///MAIN

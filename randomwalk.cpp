@@ -30,7 +30,7 @@ string createPath(const char *folder_pointer); //Generate destination filename f
 int main() {
     int num_histories;
     int num_steps;
-    //string folder_pointer;
+
     char *folder_pointer = new char[20];
     cout << "Number of histories: ";
     cin >> num_histories;
@@ -39,10 +39,8 @@ int main() {
     cout << "Folder: ";
     cin >> folder_pointer;
 
-    //cout << folder_pointer[1] << endl;
-
-    //runSpecs(num_histories, num_steps, folder_pointer);
     recordHistories(num_histories, num_steps, folder_pointer);
+    cout << "Done";
     return 0;
 } ///main
 
@@ -67,10 +65,12 @@ void history(const int &num_steps, const string &filename) {
     int r_total = 0;
     file << r_total;
     for(int i = 1; i <= num_steps; i++){
-        file << endl;
-        r = (rand() % 2) * 2 - 1;
-        r_total += r;
-        file << r_total;
+        if(i % 10 == 0) {
+            file << endl;
+            r = (rand() % 2) * 2 - 1;
+            r_total += r;
+            file << r_total;
+        }
     }
     ///Close file stream
     file.close();
@@ -78,6 +78,7 @@ void history(const int &num_steps, const string &filename) {
 
 void recordHistories(const int &num_histories, const int &num_steps, const char *folder_pointer) {
     for(int i = 0; i < num_histories; i++) {
+        cout << "Generating history #" << i << "..." << endl;
         srand(i);
         history(num_steps, createPath(folder_pointer));
     }
