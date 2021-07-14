@@ -383,7 +383,7 @@ int main() {
         buildFs(f_s_q3, history, q3, steps);
 
         //PRINTS FOR DEBUGGING
-
+        /*
         vector<vector<double> > dataDists;
         dataDists.push_back(mean_squares);
         dataDists.push_back(p_dist_t1);
@@ -394,7 +394,7 @@ int main() {
         dataDists.push_back(f_s_q3);
         cout << ">>>>>>>>>DATA<<<<<<<<<<" << endl;
         //printToScreen(dataDists, countRuns, steps, q_vector, t_vector, d);
-
+        */
         // Increment counters
         startfile++; // Go to next datafile
         countRuns++;
@@ -412,6 +412,7 @@ int main() {
     normalize(f_s_q3, runs);
 
     //PRINTS FOR DEBUGGING
+    /*
     vector<vector<double> > dataDists;
     dataDists.push_back(mean_squares);
     dataDists.push_back(p_dist_t1);
@@ -425,8 +426,10 @@ int main() {
 
     //cout << ">>>>>>>>>THEORY<<<<<<<<<<" << endl;
     //printToScreen(theoryDists, countRuns, steps, q_vector, t_vector, d);
+    */
 
     //PRINT VECTORS TO FILES
+
     // Theory
     //   Mean square displacement
     printDistribution(mean_squares_thy, "mean_squares_thy");
