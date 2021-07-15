@@ -10,6 +10,8 @@ import numpy as np
 R_START = -1000 # Negative # of steps per run
 R_END = 1001 # # of steps + 1
 R_Range = [*range(R_START,R_END,1)]
+
+TIMES = [10, 100, 1000]
 #print(R_Range,' ')
 #T_Range = [range(0,STEPS,1)]
 
@@ -23,18 +25,24 @@ XMS, YMS = np.loadtxt('mean_squares.dat', delimiter=',', unpack=True)
 #probability distribution data 1
 XP1, YP1 = np.loadtxt('p_dist_t1.dat', delimiter=',', unpack=True)
 XP1 = R_Range
+XP10 = XP1[YP1 != 0]
+YP10 = YP1[YP1 != 0]
 #hand check
 #XP1H = R_Range
 #YP1H = np.loadtxt('handcheck_p_dist_t1.dat', unpack=True)
 #probability distribution data 2
 XP2, YP2 = np.loadtxt('p_dist_t2.dat', delimiter=',', unpack=True)
 XP2 = R_Range
+XP20 = XP2[YP2 != 0]
+YP20 = YP2[YP2 != 0]
 #hand check
 #XP2H = R_Range
 #YP2H = np.loadtxt('handcheck_p_dist_t2.dat', unpack=True)
 #probability distribution data 3
 XP3, YP3 = np.loadtxt('p_dist_t3.dat', delimiter=',', unpack=True)
 XP3 = R_Range
+XP30 = XP3[YP3 != 0]
+YP30 = YP3[YP3 != 0]
 #hand check
 #XP3H = R_Range
 #YP3H = np.loadtxt('handcheck_p_dist_t3.dat', unpack=True)
@@ -276,7 +284,7 @@ plt.clf()
 plt.scatter(XP1, YP1, color='cyan')
 plt.scatter(XP1_T, YP1_T, marker='.', color='orange')
 
-plt.title('Probability Distribution at t=1')
+plt.title('Probability Distribution at t = ' + TIMES[0])
 plt.xlabel('displacement')
 plt.ylabel('probability')
 plt.legend(["Data","Theory"])
@@ -287,7 +295,7 @@ plt.clf()
 plt.scatter(XP2, YP2, color='cyan')
 plt.scatter(XP2_T, YP2_T, marker='.', color='orange')
 
-plt.title('Probability Distribution at t=2')
+plt.title('Probability Distribution at t = ' + TIMES[1])
 plt.xlabel('displacement')
 plt.ylabel('probability')
 plt.legend(["Data","Theory"])
@@ -298,7 +306,7 @@ plt.clf()
 plt.scatter(XP3, YP3, color='cyan')
 plt.scatter(XP3_T, YP3_T, marker='.', color='orange')
 
-plt.title('Probability Distribution at t=3')
+plt.title('Probability Distribution at t = ' + TIMES[2])
 plt.xlabel('displacement')
 plt.ylabel('probability')
 plt.legend(["Data","Theory"])

@@ -64,12 +64,13 @@ void history(const int &num_steps, const string &filename) {
     int r = 0;
     int r_total = 0;
     file << r_total;
-    for(int i = 1; i <= num_steps; i++){
-        if(i % 10 == 0) {
+    for(int i = 1; i <= num_steps / 3; i++){
+        if(i % 3 == 0) {
             file << endl;
             r = (rand() % 2) * 2 - 1;
             r_total += r;
             file << r_total;
+            cout << "t = " << i << endl << "r_total = " << r_total << endl;
         }
     }
     ///Close file stream
