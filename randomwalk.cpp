@@ -20,6 +20,8 @@
 #include <sys/types.h>
 using namespace std;
 
+const int FRACTION = 1;
+
 ///FUNCTION DECLARATIONS (DEFINITIONS BELOW MAIN)
 //void runSpecs(int &num_histories, int &num_steps, string folder_pointer); //Process user input for number of runs and steps per run
 void history(const int &num_steps, const string &filename); //Generate a single history and print to file
@@ -60,17 +62,21 @@ void history(const int &num_steps, const string &filename) {
     ofstream file;
     file.open(filename);
 
-    ///Generate
-    int r = 0;
+    ///GENERATE
+    //int r = 0;
+    //Initial Condition
     int r_total = 0;
     file << r_total;
-    for(int i = 1; i <= num_steps / 3; i++){
-        if(i % 3 == 0) {
+    for(int i = 1; i <= num_steps; i++){
+        if(i % FRACTION == 0) {
+            //Generate Data
+            //r = (rand() % 2) * 2 - 1;
+            r_total += (rand() % 2) * 2 - 1;
+            //Print to File
             file << endl;
-            r = (rand() % 2) * 2 - 1;
-            r_total += r;
+            file << i << ",";
             file << r_total;
-            cout << "t = " << i << endl << "r_total = " << r_total << endl;
+            //cout << "t = " << i << endl << "r_total = " << r_total << endl;
         }
     }
     ///Close file stream
@@ -79,7 +85,7 @@ void history(const int &num_steps, const string &filename) {
 
 void recordHistories(const int &num_histories, const int &num_steps, const char *folder_pointer) {
     for(int i = 0; i < num_histories; i++) {
-        cout << "Generating history #" << i << "..." << endl;
+        cout << "Generating history #" << i + 1 << "..." << endl;
         srand(i);
         history(num_steps, createPath(folder_pointer));
     }
@@ -99,14 +105,14 @@ string createPath(const char *folder_pointer) {
         folder_name += to_string(stoi(to_string(folder_pointer[i])) - 48);
         i++;
     }
-    cout << "Name: " << folder_name << endl;
+    //cout << "Name: " << folder_name << endl;
 
 
     if (mkdir(folder_pointer, 0777) == -1)
-        cout << "Folder " << folder_name << " exists." << endl;
-        //cerr << "Error :  " << strerror(errno) << endl;
+        //cout << "Folder " << folder_name << " exists." << endl;
+        cerr << "Error :  " << strerror(errno) << endl;
 
-    else cout << "Folder " << folder_pointer << " created." << endl;
+    //else cout << "Folder " << folder_pointer << " created." << endl;
 
     do { //Search for filename that does not yet exist, and create the file
 
