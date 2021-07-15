@@ -15,10 +15,18 @@
 #include <cmath>
 #include <vector>
 #include <string>
+#include <time.h>
+#ifdef WINDOWS
+#include <direct.h>
+#define GetCurrentDir _getcwd
+#else
+#include <unistd.h>
+#define GetCurrentDir getcwd
+#endif
 
 using namespace std;
 
-
+const int FRACTION = 1;
 ///FUNCTION DEFINITIONS///
 
 /**
@@ -81,7 +89,7 @@ vector<double> getData(string filename) {
  */
 void buildPDist(vector<double> &p_dist, vector<double> &dataRun, int &steps, int t) {
     // Reject invalid input
-    if(t > dataRun.size()) {
+    if(t > dataRun.size() * FRACTION) {
         cout << "******" << endl;
         cout << "ERROR: Time value(s) too large. ";
         cout << "******" << endl;
@@ -89,7 +97,7 @@ void buildPDist(vector<double> &p_dist, vector<double> &dataRun, int &steps, int
     }
 
     // Fill elements
-    p_dist.at(dataRun.at(t) + (steps - 1)) += 1.0; // Shifted origin to accommodate negative position values
+    p_dist.at(dataRun.at(t / FRACTION) + (steps - 1)) += 1.0; // Shifted origin to accommodate negative position values
 }
 
 /**
@@ -139,7 +147,7 @@ void buildFs(vector<double> &f_s, vector<double> &dataRun, double &q, int &steps
  */
 vector<double> buildMSquareThy(vector<double> &mean_squares_thy, double &d) {
     for(int i = 0; i < mean_squares_thy.size(); i++) {
-        mean_squares_thy.at(i) = 2.0 * d * i;
+        mean_squares_thy.at(i) = 2.0 * d * i * FRACTION;
     }
     return mean_squares_thy;
 }
@@ -179,25 +187,25 @@ vector<double> buildPDistThy(vector<double> &p_dist_thy, double &d, int &t, int 
  */
 vector<double> buildFsThy(vector<double> &f_s_thy, double &q, double &d, int &steps) {
     for(int i = 0; i < f_s_thy.size(); i++) {
-        f_s_thy.at(i) = exp(-pow(q, 2) * d * i);
+        f_s_thy.at(i) = exp(-pow(q, 2) * d * i * FRACTION);
     }
     return f_s_thy;
 }
 
 /**
- * printDistribution
+ * printToFile
  * prints specified vector elements to a file, one element per line. First line is the "origin"
  * or "zero" of respective distribution.
  *
  * @param dist vector of doubles to be printed to file
  * @param name string denoting name of file to be created / written to
  */
-void printDistribution(vector<double> dist, string name) {
+void printToFile(vector<double> dist, string name) {
     ofstream printfile;
     printfile.open(name + ".dat");
     printfile << 0 << "," << dist.at(0);
     for(int i = 1; i < dist.size(); i++) {
-        printfile << endl << i << "," << dist.at(i);
+        printfile << endl << i * FRACTION << "," << dist.at(i);
     }
     printfile.close();
 }
@@ -215,9 +223,32 @@ void normalize(vector<double> &dist, int runs) {
     }
 }
 
+void saveParams(int runs, int steps, vector<double> ts, vector<double> qs, double d) {
+    char buff[FILENAME_MAX]; //create string buffer to hold path
+    GetCurrentDir( buff, FILENAME_MAX );
+    string current_dir(buff);
+    ofstream printfile;
+    printfile.open("params.txt");
+
+    printfile << "Run Parameters" << endl;
+    printfile << current_dir << endl;
+    printfile << __DATE__ << " , " << __TIME__ << endl;
+    printfile << "Runs: " << runs << endl;
+    printfile << "Timesteps: " << steps << endl;
+    printfile << "Diffusion coefficient: " << d << endl;
+    printfile << "Times for P(R(t)):" << endl;
+    for(int i = 0 ; i < 3; i++)
+        printfile << "\tt" << i + 1 << " = " << ts.at(i) << endl;
+    printfile << "Qs for f_s(q,t):" << endl;
+    for(int i = 0 ; i < 3; i++)
+        printfile << "\tq" << i + 1 << " = " << qs.at(i) << endl;
+    printfile.close();
+
+
+}
 /**
  * printToScreen
- * divides each element of a vector distribution by the number of histories.
+ * outputs values of each distribution for debugging.
  *
  * @param dists vector of vector<double>s to be shown on screen
  * @param runs number of histories ("runs") used to generate distribution (int)
@@ -435,27 +466,27 @@ int main() {
 
     // Theory
     //   Mean square displacement
-    printDistribution(mean_squares_thy, "mean_squares_thy");
+    printToFile(mean_squares_thy, "mean_squares_thy");
     // Probability distributions
-    printDistribution(p_dist_thy_t1, "p_dist_thy_t1");
-    printDistribution(p_dist_thy_t2, "p_dist_thy_t2");
-    printDistribution(p_dist_thy_t3, "p_dist_thy_t3");
+    printToFile(p_dist_thy_t1, "p_dist_thy_t1");
+    printToFile(p_dist_thy_t2, "p_dist_thy_t2");
+    printToFile(p_dist_thy_t3, "p_dist_thy_t3");
     //   Self-intermediate scattering functions
-    printDistribution(f_s_thy_q1, "f_s_thy_q1");
-    printDistribution(f_s_thy_q2, "f_s_thy_q2");
-    printDistribution(f_s_thy_q3, "f_s_thy_q3");
+    printToFile(f_s_thy_q1, "f_s_thy_q1");
+    printToFile(f_s_thy_q2, "f_s_thy_q2");
+    printToFile(f_s_thy_q3, "f_s_thy_q3");
 
     // Data
     //   Mean square displacement
-    printDistribution(mean_squares, "mean_squares");
+    printToFile(mean_squares, "mean_squares");
     // Probability distributions
-    printDistribution(p_dist_t1, "p_dist_t1");
-    printDistribution(p_dist_t2, "p_dist_t2");
-    printDistribution(p_dist_t3, "p_dist_t3");
+    printToFile(p_dist_t1, "p_dist_t1");
+    printToFile(p_dist_t2, "p_dist_t2");
+    printToFile(p_dist_t3, "p_dist_t3");
     //   Self-intermediate scattering functions
-    printDistribution(f_s_q1, "f_s_q1");
-    printDistribution(f_s_q2, "f_s_q2");
-    printDistribution(f_s_q3, "f_s_q3");
+    printToFile(f_s_q1, "f_s_q1");
+    printToFile(f_s_q2, "f_s_q2");
+    printToFile(f_s_q3, "f_s_q3");
 
     cout << "Done";
 
