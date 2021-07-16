@@ -20,28 +20,29 @@
 #include <sys/types.h>
 using namespace std;
 
-const int FRACTION = 1;
-
 ///FUNCTION DECLARATIONS (DEFINITIONS BELOW MAIN)
 //void runSpecs(int &num_histories, int &num_steps, string folder_pointer); //Process user input for number of runs and steps per run
-void history(const int &num_steps, const string &filename); //Generate a single history and print to file
-void recordHistories(const int &num_histories, const int &num_steps, const char *folder_pointer); //Generate histories and generate datafiles for specified number of runs
+void history(const int &num_steps, const int &interval, const string &filename); //Generate a single history and print to file
+void recordHistories(const int &num_histories, const int &num_steps, const int &interval, const char *folder_pointer); //Generate histories and generate datafiles for specified number of runs
 string createPath(const char *folder_pointer); //Generate destination filename for data
 
 
 int main() {
     int num_histories;
     int num_steps;
+    int interval;
 
     char *folder_pointer = new char[20];
     cout << "Number of histories: ";
     cin >> num_histories;
     cout << "Number of steps per history: ";
     cin >> num_steps;
+    cout << "Step interval: ";
+    cin >> interval;
     cout << "Folder: ";
     cin >> folder_pointer;
 
-    recordHistories(num_histories, num_steps, folder_pointer);
+    recordHistories(num_histories, num_steps, interval, folder_pointer);
     cout << "Done";
     return 0;
 } ///main
@@ -57,7 +58,7 @@ void runSpecs(int &num_histories, int &num_steps, string folder_pointer) {
 }
 */
 
-void history(const int &num_steps, const string &filename) {
+void history(const int &num_steps, const int &interval, const string &filename) {
     ///Open file stream
     ofstream file;
     file.open(filename);
@@ -68,10 +69,10 @@ void history(const int &num_steps, const string &filename) {
     int r_total = 0;
     file << 0 << "," << r_total;
     for(int i = 1; i <= num_steps; i++){
-        if(i % FRACTION == 0) {
-            //Generate Data
-            //r = (rand() % 2) * 2 - 1;
-            r_total += (rand() % 2) * 2 - 1;
+        //Generate Data
+        //r = (rand() % 2) * 2 - 1;
+        r_total += (rand() % 2) * 2 - 1;
+        if(i % interval == 0) {
             //Print to File
             file << endl;
             file << i << ",";
@@ -83,11 +84,11 @@ void history(const int &num_steps, const string &filename) {
     file.close();
 }
 
-void recordHistories(const int &num_histories, const int &num_steps, const char *folder_pointer) {
+void recordHistories(const int &num_histories, const int &num_steps, const int &interval, const char *folder_pointer) {
     for(int i = 0; i < num_histories; i++) {
         cout << "Generating history #" << i + 1 << "..." << endl;
         srand(i);
-        history(num_steps, createPath(folder_pointer));
+        history(num_steps, interval, createPath(folder_pointer));
     }
 }
 
