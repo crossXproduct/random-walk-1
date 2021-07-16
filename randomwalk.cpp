@@ -66,7 +66,7 @@ void history(const int &num_steps, const string &filename) {
     //int r = 0;
     //Initial Condition
     int r_total = 0;
-    file << r_total;
+    file << 0 << "," << r_total;
     for(int i = 1; i <= num_steps; i++){
         if(i % FRACTION == 0) {
             //Generate Data
