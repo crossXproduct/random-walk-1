@@ -91,7 +91,7 @@ void getData(string &filename, vector<double> &run_times, vector<double> &total_
  * @param run_times.size() number of run_times.size() per run (int)
  * @param t time at which P(R(t)) is to be evaluated (int)
  */
-void buildPDist(vector<double> &p_dist, vector<double> &total_displacements, int t) {
+void buildPDist(vector<double> &p_dist, vector<double> &p_dist_bins, vector<double> &total_displacements, int t) {
     // Reject invalid input
     if(t > total_displacements.size() * FRACTION) {
         cout << "******" << endl;
@@ -100,8 +100,18 @@ void buildPDist(vector<double> &p_dist, vector<double> &total_displacements, int
         return;
     }
 
+    // Condition: if t is even, delete all odd elements, delete all even otherwise
+    int i = 0;
+    if(t % 2 == 0)
+        i = 1;
+    // For all elements in bin vect, delete every other one
+    for(; i < p_dist_bins.size();) {
+        p_dist_bins.erase(p_dist_bins.begin() + i);
+        i += 2;
+    }
+
     // Fill elements
-    p_dist.at(total_displacements.at(t / FRACTION) + (total_displacements.size() - 1)) += 1.0; // Shifted origin to accommodate negative position values
+    p_dist.at((total_displacements.at(t / FRACTION) + (total_displacements.size() - 1)) / 2) += 1.0; // Shifted origin to accommodate negative position values, bin size 2
 }
 
 /**
@@ -339,6 +349,7 @@ int main() {
     // Raw data vectors
     vector<double> run_times;
     vector<double> total_displacements;
+    vector<double> p_dist_bins = total_displacements; // Same as displacements, but will skip every other displacement to give p_dist bin size 2
     getData(filename, run_times, total_displacements);
     saveParams(runs, run_times.size(), t_vals, q_vals, diffusivity);
 
@@ -386,9 +397,9 @@ int main() {
         // Mean square displacement as a function of time
         buildMSquare(mean_squares, total_displacements);
         // Probability distributions as functions of position at time t
-        buildPDist(p_dist_t1, total_displacements, t_vals.at(0));
-        buildPDist(p_dist_t2, total_displacements, t_vals.at(1));
-        buildPDist(p_dist_t3, total_displacements, t_vals.at(2));
+        buildPDist(p_dist_t1, p_dist_bins, total_displacements, t_vals.at(0));
+        buildPDist(p_dist_t2, p_dist_bins, total_displacements, t_vals.at(1));
+        buildPDist(p_dist_t3, p_dist_bins, total_displacements, t_vals.at(2));
         // Self-intermediate scattering functions as a function of time
         buildFs(f_s_q1, total_displacements, q_vals.at(0));
         buildFs(f_s_q2, total_displacements, q_vals.at(1));
