@@ -229,9 +229,11 @@ void printToFile(vector<double> x, vector<double> y, string name) {
  * @param dist vector of doubles to be normalized W.R.T. number of runs
  * @param runs number of histories ("runs") used to generate distribution (int)
  */
-void normalize(vector<double> &dist, int runs) {
+void normalize(vector<double> &dist, int &runs, double bin_size) {
+    //If probability distribution, normalize by twice number of runs (bin_size = 2.0), otherwise bin_size = 1.0
+    //Normalize
     for(int i = 0; i < dist.size(); i++) {
-        dist.at(i) /= runs * 1.0;
+        dist.at(i) /= runs * bin_size;
     }
 }
 
@@ -424,15 +426,15 @@ int main() {
     } while(count_runs <= runs);
 
     //NORMALIZE DATA VECTORS
-    normalize(mean_squares, runs);
+    normalize(mean_squares, runs, 1.0);
 
-    normalize(p_dist_t1, runs);
-    normalize(p_dist_t2, runs);
-    normalize(p_dist_t3, runs);
+    normalize(p_dist_t1, runs, 2.0);
+    normalize(p_dist_t2, runs, 2.0);
+    normalize(p_dist_t3, runs, 2.0);
 
-    normalize(f_s_q1, runs);
-    normalize(f_s_q2, runs);
-    normalize(f_s_q3, runs);
+    normalize(f_s_q1, runs, 1.0);
+    normalize(f_s_q2, runs, 1.0);
+    normalize(f_s_q3, runs, 1.0);
 
     //PRINTS FOR DEBUGGING
     /*
@@ -464,9 +466,9 @@ int main() {
     //   Mean square displacement
     printToFile(run_times, mean_squares_thy, "mean_squares_thy");
     // Probability distributions
-    printToFile(total_displacements, p_dist_thy_t1, "p_dist_thy_t1");
-    printToFile(total_displacements, p_dist_thy_t2, "p_dist_thy_t2");
-    printToFile(total_displacements, p_dist_thy_t3, "p_dist_thy_t3");
+    printToFile(p_dist_bins, p_dist_thy_t1, "p_dist_thy_t1");
+    printToFile(p_dist_bins, p_dist_thy_t2, "p_dist_thy_t2");
+    printToFile(p_dist_bins, p_dist_thy_t3, "p_dist_thy_t3");
     //   Self-intermediate scattering functions
     printToFile(run_times, f_s_thy_q1, "f_s_thy_q1");
     printToFile(run_times, f_s_thy_q2, "f_s_thy_q2");
