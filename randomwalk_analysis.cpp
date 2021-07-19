@@ -26,7 +26,6 @@
 
 using namespace std;
 
-const int FRACTION = 1;
 ///FUNCTION DEFINITIONS///
 
 /**
@@ -37,7 +36,7 @@ const int FRACTION = 1;
  *                   of lines in datafile (int)
  * @return vector of total displacements (doubles), one per element
  */
-void getData(string &filename, vector<double> &run_times, vector<double> &total_displacements) {
+void getData(string &filename, vector<double> &run_times, vector<double> &total_displacements, int &interval, int &count_runs) {
     // Open data file to read
     ifstream file; // Create file stream
     file.open(filename); // Open file stream
@@ -48,26 +47,29 @@ void getData(string &filename, vector<double> &run_times, vector<double> &total_
         file >> s;
     }
 
-    // Read in times
+    // Read in times & displacements
     //int run_times.size() = 0;
+
+    total_displacements.clear();
     while(!file.eof()) { // Fill vector with data
-        //run_times.size()++;
+        //cout << run_times.size() << endl;
+        //cout << total_displacements.size() << endl;
         string time_str;
         getline(file, time_str, ',');
-        int time = stoi(time_str);
-        run_times.push_back(time); // Push to vector
-        file.ignore(100,'/n');
-        //cout << r_total; // Print for debugging
+        if(count_runs == 0) {
+            run_times.push_back(stoi(time_str)); // Push to vector
+        }
+
+        string displ_str;
+        getline(file, displ_str, '\n');
+        total_displacements.push_back(stod(displ_str));
+            //cout << r_total; // Print for debugging
     }
-    // Read in displacements
-    while(!file.eof()) { // Fill vector with data
-        string disp_str;
-        getline(file, disp_str, ',');
-        double displacement = stoi(disp_str);
-        total_displacements.push_back(displacement); // Push to vector
-        file.ignore(100,'/n');
-        //cout << r_total; // Print for debugging
-    }
+
+
+    // Read time interval
+    interval = run_times.at(1) - run_times.at(0);
+
     // Check for failure
     if(!file.eof() && file.fail()) {
             cout << "Error: unable to read file\n" << filename;
@@ -76,6 +78,7 @@ void getData(string &filename, vector<double> &run_times, vector<double> &total_
             file >> s;
     }
     //cout << endl; // Print for debugging
+    file.clear();
     file.close();
 
 }
@@ -91,27 +94,32 @@ void getData(string &filename, vector<double> &run_times, vector<double> &total_
  * @param run_times.size() number of run_times.size() per run (int)
  * @param t time at which P(R(t)) is to be evaluated (int)
  */
-void buildPDist(vector<double> &p_dist, vector<double> &p_dist_bins, vector<double> &total_displacements, int t) {
+void buildPDist(vector<double> &p_dist, vector<double> &p_dist_bins, vector<double> &total_displacements, int t, int interval) {
     // Reject invalid input
-    if(t > total_displacements.size() * FRACTION) {
+    if(t > (total_displacements.size() - 1) * interval) {
         cout << "******" << endl;
-        cout << "ERROR: Time value(s) too large. ";
+        cout << "ERROR: Time value(s) too large.";
         cout << "******" << endl;
         return;
     }
 
-    // Condition: if t is even, delete all odd elements, delete all even otherwise
-    int i = 0;
-    if(t % 2 == 0)
-        i = 1;
-    // For all elements in bin vect, delete every other one
-    for(; i < p_dist_bins.size();) {
-        p_dist_bins.erase(p_dist_bins.begin() + i);
+    // Condition: if t is even (i = 0) keep all even elements, if odd (i = 1) keep all odd elements
+    int parity = 1;
+    if(t % 2 == 0) {
+        parity = 0;
+    }
+
+    p_dist_bins.clear();
+    // Fill p_dist_bins with correct values
+    for(int i = parity; i < (total_displacements.size() - 1) * interval * 2 + 1;) {
+        p_dist_bins.push_back(i - (p_dist_bins.size() - 1));
         i += 2;
     }
 
+    cout << "R: " << total_displacements.at(t / interval);
+    cout << "Position: " << (((total_displacements.at(t / interval) + (parity % 1)) / 2) - (parity % 1)) + (((p_dist.size() + (parity % 1)) / 2) - (parity % 1)) << endl;
     // Fill elements
-    p_dist.at((total_displacements.at(t / FRACTION) + (total_displacements.size() - 1)) / 2) += 1.0; // Shifted origin to accommodate negative position values, bin size 2
+    p_dist.at((((total_displacements.at(t / interval) + (parity % 1)) / 2) - (parity % 1)) + (((p_dist.size() + (parity % 1)) / 2) - (parity % 1))) += 1.0; // Shifted origin to accommodate negative position values, bin size 2
 }
 
 /**
@@ -143,7 +151,7 @@ void buildMSquare(vector<double> &mean_squares, vector<double> &total_displaceme
  */
 void buildFs(vector<double> &f_s, vector<double> &total_displacements, double &q) {
     for(int i = 0; i < total_displacements.size(); i++) {
-        f_s.at(i) += cos(q * total_displacements.at(i));
+        f_s.at(i) += (cos(q * total_displacements.at(i)));
     }
 }
 
@@ -159,9 +167,9 @@ void buildFs(vector<double> &f_s, vector<double> &total_displacements, double &q
  *
  * @return vector of square displacements (doubles) whose indices are the run_times.size()...to be normalized later
  */
-void buildMSquareThy(vector<double> &mean_squares_thy, vector<double> &run_times double &diffusivity) {
+void buildMSquareThy(vector<double> &mean_squares_thy, vector<double> &run_times, double &diffusivity) {
     for(int i = 0; i < run_times.size(); i++) {
-        mean_squares_thy.push_back(2.0 * diffusivity * run_times.at(i));
+        mean_squares_thy.at(i) = (2.0 * diffusivity * run_times.at(i));
     }
 }
 
@@ -178,10 +186,9 @@ void buildMSquareThy(vector<double> &mean_squares_thy, vector<double> &run_times
  *
  * @return vector of (NOT normalized) probabilities (doubles) whose indices are displacement values
  */
-void buildPDistThy(vector<double> &p_dist_thy, vector<double> run_times, double &diffusivity, int &t) {
-    double n = 1/sqrt(4 * M_PI * diffusivity * t);
-    for(int i = 0; i < (run_times.size() * 2 - 1); i++) {
-        p_dist_thy.push_back(n * exp( -pow(run_times.at(i) - ((run_times.size() * 2 - 1) - 1), 2) / (4 * diffusivity * t))); // Origin will be shifted to right by t
+void buildPDistThy(vector<double> &p_dist_thy, vector<double> &total_displacements, double &diffusivity, int &t) {
+    for(int i = 0; i < p_dist_thy.size(); i++) {
+        p_dist_thy.at(i) = 1/sqrt(4 * M_PI * diffusivity * t) * exp( -pow(i - ((p_dist_thy.size() + (1 - t % 2)) / 2 - (1 - t % 2)), 2) / (4 * diffusivity * t)); // Origin will be shifted to right by t
     }
 }
 
@@ -199,7 +206,7 @@ void buildPDistThy(vector<double> &p_dist_thy, vector<double> run_times, double 
  */
 vector<double> buildFsThy(vector<double> &f_s_thy, vector<double> run_times, double &q, double &diffusivity) {
     for(int i = 0; i < run_times.size(); i++) {
-        f_s_thy.push_back(exp(-pow(q, 2) * diffusivity * run_times.at(i)));
+        f_s_thy.at(i) = (exp(-pow(q, 2) * diffusivity * run_times.at(i)));
     }
     return f_s_thy;
 }
@@ -213,10 +220,12 @@ vector<double> buildFsThy(vector<double> &f_s_thy, vector<double> run_times, dou
  * @param name string denoting name of file to be created / written to
  */
 void printToFile(vector<double> x, vector<double> y, string name) {
+    cout << "x size is " << x.size() << " , " << "y size is " << y.size() << endl;
     ofstream printfile;
     printfile.open(name + ".dat");
     printfile << 0 << "," << y.at(0);
     for(int i = 1; i < y.size(); i++) {
+        //cout << "i = " << i << ", x = " << x.at(i) << ", y = " << y.at(i) << endl;
         printfile << endl << x.at(i) << "," << y.at(i);
     }
     printfile.close();
@@ -237,27 +246,29 @@ void normalize(vector<double> &dist, int &runs, double bin_size) {
     }
 }
 
-void saveParams(int runs, int num_times, vector<double> t_vals, vector<double> q_vals, double diffusivity) {
+void saveParams(int &runs, int num_times, int &interval, vector<int> t_vals, vector<double> q_vals, double &diffusivity) {
     char buff[FILENAME_MAX]; //create string buffer to hold path
     GetCurrentDir( buff, FILENAME_MAX );
     string current_dir(buff);
     ofstream printfile;
     printfile.open("params.txt");
 
-    printfile << "Run Parameters" << endl;
     printfile << current_dir << endl;
-    printfile << __DATE__ << " , " << __TIME__ << endl;
+    printfile << __DATE__ << " , " << __TIME__ << endl << endl;
+    printfile << "CURRENT RUN PARAMETERS" << endl;
     printfile << "Runs: " << runs << endl;
-    printfile << "run_times.size()teps: " << run_times.size() << endl;
-    printfile << "diffusivity: " << diffusivity << endl;
-    printfile << "run_times.size() for P(R(t)):" << endl;
+    printfile << "Number of steps: " << num_times << endl;
+    printfile << "Step interval: " << interval << endl;
+    printfile << "Diffusivity: " << diffusivity << endl;
+    printfile << "Times for P(R(t)):" << endl;
     for(int i = 0 ; i < 3; i++)
-        printfile << "\tt" << i + 1 << " = " << t_vals.at(i) << endl;
+        printfile << setw(5) << right << "t" << i + 1 << " = " << t_vals.at(i) << endl;
     printfile << "Qs for f_s(q,t):" << endl;
     for(int i = 0 ; i < 3; i++)
-        printfile << "\tq" << i + 1 << " = " << q_vals.at(i) << endl;
+        printfile << setw(5) << right << "q" << i + 1 << " = " << q_vals.at(i) << endl;
     printfile.close();
 }
+
 /**
  * printToScreen
  * outputs values of each distribution for debugging.
@@ -319,6 +330,7 @@ int main() {
 
     //VARIABLES
     // Constants & parameters
+    int interval;
     int startfile, endfile; // Number of first and last data file to process, in numerical order
     cout << "Enter number of first datafile (e.g. \"1\" for history01.dat): ";
     cin >> startfile;
@@ -351,39 +363,56 @@ int main() {
     // Raw data vectors
     vector<double> run_times;
     vector<double> total_displacements;
-    vector<double> p_dist_bins = total_displacements; // Same as displacements, but will skip every other displacement to give p_dist bin size 2
-    getData(filename, run_times, total_displacements);
-    saveParams(runs, run_times.size(), t_vals, q_vals, diffusivity);
+    vector<double> p_dist_bins; // Same as displacements, but will skip every other displacement to give p_dist bin size 2
+    int count_runs = 0; // Counter for debugging
+    cout << "Reading Parameters" << endl;
+    getData(filename, run_times, total_displacements, interval, count_runs);
+    saveParams(runs, run_times.size(), interval, t_vals, q_vals, diffusivity);
 
+    cout << "Building MSD Theory" << endl;
     // Theory vectors (initialized)
-    vector<double> mean_squares_thy;
-    mean_squares_thy = buildMSquareThy(mean_squares_thy, run_times, diffusivity);
-    vector<double> p_dist_thy_t1;
-    p_dist_thy_t1 = buildPDistThy(p_dist_thy_t1, run_times, diffusivity, t_vals.at(0));
-    vector<double> p_dist_thy_t2;
-    p_dist_thy_t2 = buildPDistThy(p_dist_thy_t2, run_times, diffusivity, t_vals.at(1));
-    vector<double> p_dist_thy_t3;
-    p_dist_thy_t3 = buildPDistThy(p_dist_thy_t3, run_times, diffusivity, t_vals.at(2));
-    vector<double> f_s_thy_q1;
-    f_s_thy_q1 = buildFsThy(f_s_thy_q1, run_times, q_vals.at(0), diffusivity);
-    vector<double> f_s_thy_q2;
-    f_s_thy_q2 = buildFsThy(f_s_thy_q2, run_times, q_vals.at(1), diffusivity);
-    vector<double> f_s_thy_q3;
-    f_s_thy_q3 = buildFsThy(f_s_thy_q3, run_times, q_vals.at(2), diffusivity);
+    vector<double> mean_squares_thy(run_times.size());
+    buildMSquareThy(mean_squares_thy, run_times, diffusivity);
+
+    cout << "Building PDist Theory" << endl;
+    vector<double> p_dist_thy_t1((total_displacements.size() - 1) * interval + (1 - t_vals.at(0) % 2));
+    cout << "PDist Size: " << p_dist_thy_t1.size() << endl;
+    buildPDistThy(p_dist_thy_t1, total_displacements, diffusivity, t_vals.at(0));
+    vector<double> p_dist_thy_t2((total_displacements.size() - 1) * interval + (1 - t_vals.at(0) % 2));
+    cout << "PDist Size: " << p_dist_thy_t1.size() << endl;
+    buildPDistThy(p_dist_thy_t2, total_displacements, diffusivity, t_vals.at(1));
+    vector<double> p_dist_thy_t3((total_displacements.size() - 1) * interval + (1 - t_vals.at(0) % 2));
+    cout << "PDist Size: " << p_dist_thy_t1.size() << endl;
+    buildPDistThy(p_dist_thy_t3, total_displacements, diffusivity, t_vals.at(2));
+
+    cout << "Building F_s Theory" << endl;
+    vector<double> f_s_thy_q1(run_times.size());
+    buildFsThy(f_s_thy_q1, run_times, q_vals.at(0), diffusivity);
+    vector<double> f_s_thy_q2(run_times.size());
+    buildFsThy(f_s_thy_q2, run_times, q_vals.at(1), diffusivity);
+    vector<double> f_s_thy_q3(run_times.size());
+    buildFsThy(f_s_thy_q3, run_times, q_vals.at(2), diffusivity);
 
     // Empty data distribution vectors
-    vector<double> mean_squares(run_times.size(), 0.0); // Mean square displacement as function of time
-    vector<double> p_dist_t1(2 * run_times.size() - 1, 0.0); // Spatial probability distribution at time t
-    vector<double> p_dist_t2(2 * run_times.size() - 1, 0.0);
-    vector<double> p_dist_t3(2 * run_times.size() - 1, 0.0);
-    vector<double> f_s_q1(run_times.size(), 0.0); // Self-intermediate scattering funct. as function of time
-    vector<double> f_s_q2(run_times.size(), 0.0); // with parameter q
-    vector<double> f_s_q3(run_times.size(), 0.0);
+    cout << "Initializing Data Vectors" << endl;
+    vector<double> mean_squares(run_times.size()); // Mean square displacement as function of time
+    vector<double> p_dist_t1((total_displacements.size() - 1) * interval + (1 - t_vals.at(0) % 2)); // Spatial probability distribution at time t
+    vector<double> p_dist_t2((total_displacements.size() - 1) * interval + (1 - t_vals.at(0) % 2));
+    vector<double> p_dist_t3((total_displacements.size() - 1) * interval + (1 - t_vals.at(0) % 2));
+    vector<double> f_s_q1(run_times.size()); // Self-intermediate scattering funct. as function of time
+    vector<double> f_s_q2(run_times.size()); // with parameter q
+    vector<double> f_s_q3(run_times.size());
+
+    cout << "Total Displacements:" << endl;
+    for(int i = 0; i < total_displacements.size(); i++) {
+        cout << total_displacements.at(i) << " , ";
+    }
+    cout << endl;
 
     //FILL DATA VECTORS FROM FILE
     ifstream file; // File input stream for reading data
-    int count_runs = 1; // Counter for debugging
     do {
+        count_runs++;
         cout << "Run " << count_runs << " of " << runs << endl;
         if(startfile < 10) {
             filename = "history0" + to_string(startfile) + ".dat";
@@ -391,24 +420,40 @@ int main() {
         else {
             filename = "history" + to_string(startfile) + ".dat";
         }
+        cout << "Filename is: " << filename << endl;
 
         // A single thermal history
+        cout << "Reading Data" << endl;
         vector< vector<double> > history;
-        getData(filename, run_times, total_displacements);
+        getData(filename, run_times, total_displacements, interval, count_runs);
 
+        cout << "Total Displacements:" << endl;
+        for(int i = 0; i < total_displacements.size(); i++) {
+        cout << total_displacements.at(i) << " , ";
+        }
+        cout << endl;
         // Mean square displacement as a function of time
-        buildMSquare(mean_squares, total_displacements);
-        // Probability distributions as functions of position at time t
-        buildPDist(p_dist_t1, p_dist_bins, total_displacements, t_vals.at(0));
-        buildPDist(p_dist_t2, p_dist_bins, total_displacements, t_vals.at(1));
-        buildPDist(p_dist_t3, p_dist_bins, total_displacements, t_vals.at(2));
+        cout << "Building MSD from Data" << endl;
+        buildMSquare(mean_squares, total_displacements);// Probability distributions as functions of position at time t
+
+        cout << "Building PDist from Data" << endl;
+        buildPDist(p_dist_t1, p_dist_bins, total_displacements, t_vals.at(0), interval);
+        cout << "PDist Bins Size is " << p_dist_bins.size() << endl;
+        cout << "PDist 1 Size is " << p_dist_t1.size() << endl;
+        buildPDist(p_dist_t2, p_dist_bins, total_displacements, t_vals.at(1), interval);
+        cout << "PDist Bins Size is " << p_dist_bins.size() << endl;
+        cout << "PDist 2 Size is " << p_dist_t1.size() << endl;
+        buildPDist(p_dist_t3, p_dist_bins, total_displacements, t_vals.at(2), interval);
+        cout << "PDist Bins Size is " << p_dist_bins.size() << endl;
+        cout << "PDist 3 Size is " << p_dist_t1.size() << endl;
+
         // Self-intermediate scattering functions as a function of time
+        cout << "Building F_s from Data" << endl;
         buildFs(f_s_q1, total_displacements, q_vals.at(0));
         buildFs(f_s_q2, total_displacements, q_vals.at(1));
         buildFs(f_s_q3, total_displacements, q_vals.at(2));
 
-        count_runs++;
-
+        startfile++;
         //PRINTS FOR DEBUGGING
         /*
         vector<vector<double> > dataDists;
@@ -423,18 +468,19 @@ int main() {
         printToScreen(dataDists, count_runs, run_times.size(), t_vals, q_vals, diffusivity);
         */
 
-    } while(count_runs <= runs);
+    } while(startfile <= endfile);
 
     //NORMALIZE DATA VECTORS
+    cout << "Normalizing MSD" << endl;
     normalize(mean_squares, runs, 1.0);
-
     normalize(p_dist_t1, runs, 2.0);
     normalize(p_dist_t2, runs, 2.0);
     normalize(p_dist_t3, runs, 2.0);
-
+    cout << "Normalizing f_s" << endl;
     normalize(f_s_q1, runs, 1.0);
     normalize(f_s_q2, runs, 1.0);
     normalize(f_s_q3, runs, 1.0);
+    cout << "printing" << endl;
 
     //PRINTS FOR DEBUGGING
     /*
@@ -464,28 +510,32 @@ int main() {
     //PRINT VECTORS TO FILES
     // Theory
     //   Mean square displacement
+    cout << "Printing MSD Theory" << endl;
     printToFile(run_times, mean_squares_thy, "mean_squares_thy");
     // Probability distributions
     printToFile(p_dist_bins, p_dist_thy_t1, "p_dist_thy_t1");
     printToFile(p_dist_bins, p_dist_thy_t2, "p_dist_thy_t2");
     printToFile(p_dist_bins, p_dist_thy_t3, "p_dist_thy_t3");
     //   Self-intermediate scattering functions
+    cout << "Printing f_s Theory" << endl;
     printToFile(run_times, f_s_thy_q1, "f_s_thy_q1");
     printToFile(run_times, f_s_thy_q2, "f_s_thy_q2");
     printToFile(run_times, f_s_thy_q3, "f_s_thy_q3");
 
     // Data
     //   Mean square displacement
+    cout << "Printing MSD" << endl;
     printToFile(run_times, mean_squares, "mean_squares");
+
     // Probability distributions
-    printToFile(total_displacements, p_dist_t1, "p_dist_t1");
-    printToFile(total_displacements, p_dist_t2, "p_dist_t2");
-    printToFile(total_displacements, p_dist_t3, "p_dist_t3");
+    printToFile(p_dist_bins, p_dist_t1, "p_dist_t1");
+    printToFile(p_dist_bins, p_dist_t2, "p_dist_t2");
+    printToFile(p_dist_bins, p_dist_t3, "p_dist_t3");
     //   Self-intermediate scattering functions
+    cout << "Printing f_s" << endl;
     printToFile(run_times, f_s_q1, "f_s_q1");
     printToFile(run_times, f_s_q2, "f_s_q2");
     printToFile(run_times, f_s_q3, "f_s_q3");
-
     cout << "Done";
 
     return 0;
