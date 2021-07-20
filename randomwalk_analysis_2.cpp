@@ -26,7 +26,7 @@
 
 using namespace std;
 
-void readInput(int& firstHistoryNumber, int& lastHistoryNumber, int totalRuns, vector<int>& evalTimes, vector<double>& evalQs, double& diffusivity){
+void readInput(int& firstHistoryNumber, int& lastHistoryNumber, int totalRuns, vector<int>& evalTimes, vector<double>& evalQs, double& diffusivity, int& dt){
     cout << "Enter number of first datafile (e.g. \"1\" for history01.dat): ";
     cin >> firstHistoryNumber;
     cout << "Enter number of last datafile (e.g. \"10\" for history10.dat): ";
@@ -47,6 +47,9 @@ void readInput(int& firstHistoryNumber, int& lastHistoryNumber, int totalRuns, v
 
     cout << "Enter diffusivity: ";
     cin >> diffusivity;
+
+    cout << "Enter time interval for correlation measurements: ";
+    cin >> dt;
 }
 void readData(string filename, vector<double>& timeBins, vector<double>& totalDisplacements, int& totalTime, int& timeInterval, int& totalRuns){
     ifstream file; // Create file stream
@@ -211,7 +214,7 @@ int main() {
 
     // Read parameters and fill spatial bins
     cout << "Reading Parameters" << endl;
-    readInput(firstHistoryNumber, lastHistoryNumber, totalRuns, evalTimes, evalQs, diffusivity);
+    readInput(firstHistoryNumber, lastHistoryNumber, totalRuns, evalTimes, evalQs, diffusivity, dt);
     totalRuns = lastHistoryNumber - firstHistoryNumber + 1; // Number of histories
     //cout << "Total Runs: " << totalRuns << endl;
     //cout << firstHistoryNumber << " " << lastHistoryNumber << " " << totalRuns << " " << endl;
