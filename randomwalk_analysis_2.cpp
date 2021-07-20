@@ -146,12 +146,15 @@ void saveParams(int totalRuns, int totalTime, int timeInterval, vector<int> eval
 
     printfile << "CURRENT RUN PARAMETERS" << endl;
     printfile << current_dir << endl;
-    printfile << __DATE__ << " , " << __TIME__ << endl << endl;
-
-    printfile << "Runs:" << endl << totalRuns << endl;
-    printfile << "Number of steps: " << endl << totalTime << endl;
-    printfile << "Step interval: " << endl << timeInterval << endl;
-    printfile << "Diffusivity: " << endl << diffusivity << endl;
+    printfile << __DATE__ << " , " << __TIME__ << endl;
+    printfile << "Runs:" << endl;
+    printfile << totalRuns << endl;
+    printfile << "Number of steps: " << endl;
+    printfile << totalTime << endl;
+    printfile << "Step interval: " << endl;
+    printfile << timeInterval << endl;
+    printfile << "Diffusivity: " << endl;
+    printfile << diffusivity << endl;
     printfile << "Times for P(R(t))" << endl;
     for(int i = 0 ; i < 3; i++)
         printfile << evalTimes.at(i) << endl;
