@@ -26,7 +26,7 @@
 
 using namespace std;
 
-void readInput(int& firstHistoryNumber, int& lastHistoryNumber, int totalRuns, vector<int>& evalTimes, vector<double>& evalQs, double& diffusivity){
+void readInput(int& firstHistoryNumber, int& lastHistoryNumber, int totalRuns, vector<int>& evalTimes, vector<double>& evalQs, double& diffusivity, int& dt){
     cout << "Enter number of first datafile (e.g. \"1\" for history01.dat): ";
     cin >> firstHistoryNumber;
     cout << "Enter number of last datafile (e.g. \"10\" for history10.dat): ";
@@ -47,6 +47,9 @@ void readInput(int& firstHistoryNumber, int& lastHistoryNumber, int totalRuns, v
 
     cout << "Enter diffusivity: ";
     cin >> diffusivity;
+
+    cout << "Enter time interval for correlation measurements: ";
+    cin >> dt;
 }
 void readData(string filename, vector<double>& timeBins, vector<double>& totalDisplacements, int& totalTime, int& timeInterval, int& totalRuns){
     ifstream file; // Create file stream
@@ -96,8 +99,12 @@ void updatePDist(vector<double>& probabilities, vector<double>& displacements, i
     probabilities.at((displacements.at(time) - time % 2) / 2 + (probabilities.size() + (1 - time % 2)) / 2) += 1;
 }
 void updateMeanSquare(vector<double>& meanSquareDisplacement, vector<double> timeBins, vector<double> totalDisplacements){
-    for(int t = 0; t < timeBins.size(); t++) {
-        meanSquareDisplacement.at(t) += pow(totalDisplacements.at(t), 2);
+    for(int di = 0; di < timeBins.size(); di ++){
+        int difference = timeBins.size() - di;
+        for(int initialIndex = 0; initialIndex < difference; initialIndex++) {
+            meanSquareDisplacement.at(di) += pow(totalDisplacements.at(initialIndex + di) - totalDisplacements.at(initialIndex), 2);
+        }
+    //normalize
     }
 }
 void updateF_s(vector<double>&f_s, vector<double> timeBins, vector<double> totalDisplacements, double q){
@@ -169,26 +176,6 @@ void saveParams(int totalRuns, int totalTime, int timeInterval, vector<int> eval
     cout << "Total Runs: " << totalRuns << endl;
     */
 }
-void timeCorrelations(vector<double>& correlations, vector<double>& totalDisplacements, int dt){
-    for(int timestep = 1; timestep <= correlations.size(); timestep++) {
-        correlations.at(timestep - 1) += totalDisplacements.at(timestep * 2 * dt) - totalDisplacements.at(timestep * dt);
-    }
-}
-void getCorrelationBins(vector<double>& correlationBins, int dt){
-    for(int timestep = 1; timestep <= correlationBins.size(); timestep++){
-        correlationBins.at(timestep - 1) = timestep * dt;
-    }
-}
-void printCorrelations(vector<double>& correlations, vector<double>& correlationBins, string name){
-    ofstream printfile;
-    printfile.open(name + ".dat");
-    printfile << 1 << "," << correlations.at(0);
-    for(int i = 1; i < correlations.size(); i++) {
-        //cout << "i = " << i << ", x = " << x.at(i) << ", y = " << y.at(i) << endl;
-        printfile << endl << correlationBins.at(i) << "," << correlations.at(i);
-    }
-    printfile.close();
-}
 
 int main() {
 
@@ -211,7 +198,7 @@ int main() {
 
     // Read parameters and fill spatial bins
     cout << "Reading Parameters" << endl;
-    readInput(firstHistoryNumber, lastHistoryNumber, totalRuns, evalTimes, evalQs, diffusivity);
+    readInput(firstHistoryNumber, lastHistoryNumber, totalRuns, evalTimes, evalQs, diffusivity, dt);
     totalRuns = lastHistoryNumber - firstHistoryNumber + 1; // Number of histories
     //cout << "Total Runs: " << totalRuns << endl;
     //cout << firstHistoryNumber << " " << lastHistoryNumber << " " << totalRuns << " " << endl;
@@ -245,6 +232,7 @@ int main() {
     cout << spaceBins1.at(i) << " ";
     }
     cout << endl;
+
     // Calculated Distributions
     vector<double> meanSquareDisplacement(totalTime / timeInterval + 1);
     vector<double> probabilityDistribution1(totalTime + 1);
@@ -261,11 +249,6 @@ int main() {
     vector<double> f_s1Thy(totalTime / timeInterval + 1);
     vector<double> f_s2Thy(totalTime / timeInterval + 1);
     vector<double> f_s3Thy(totalTime / timeInterval + 1);
-
-    // Time Correlations
-    vector<double> correlations((totalDisplacements.size() - 1) * timeInterval / dt);
-    vector<double> correlationBins((totalDisplacements.size() - 1) * timeInterval / dt);
-    getCorrelationBins(correlationBins, dt);
 
     // Read data and update data distributions with each run
     do {
@@ -292,10 +275,11 @@ int main() {
         updateF_s(f_s2, timeBins, totalDisplacements, evalQs.at(1));
         updateF_s(f_s3, timeBins, totalDisplacements, evalQs.at(2));
 
-        cout << "Building Time Correlations" << endl;
-        timeCorrelations(correlations, totalDisplacements, dt);
+        //cout << "Building Time Correlations" << endl;
+        //timeCorrelations(correlations, totalDisplacements, dt);
 
         firstHistoryNumber++;
+
     } while(firstHistoryNumber <= lastHistoryNumber);
 
     /*
