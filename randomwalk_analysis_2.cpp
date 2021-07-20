@@ -92,10 +92,8 @@ vector<double> getSpaceBins(int totalTime, int binSize, int time){
     return spaceBins;
 }
 void updatePDist(vector<double>& probabilities, vector<double>& displacements, int time){
-    cout << "Size: " << probabilities.size() << endl;
     //cout << (displacements.at(time) - time % 2) / 2 - (probabilities.size() - (1 - time % 2)) / 2;
     probabilities.at((displacements.at(time) - time % 2) / 2 + (probabilities.size() + (1 - time % 2)) / 2) += 1;
-    cout << "***" << endl;
 }
 void updateMeanSquare(vector<double>& meanSquareDisplacement, vector<double> timeBins, vector<double> totalDisplacements){
     for(int t = 0; t < timeBins.size(); t++) {
@@ -107,13 +105,14 @@ void updateF_s(vector<double>&f_s, vector<double> timeBins, vector<double> total
         f_s.at(t) += (cos(q * totalDisplacements.at(t)));
     }
 }
-void PDistThy(vector<double>& probabilitiesThy, double diffusivity, int time, int timeInterval){
-    for(int r = 0; r <= probabilitiesThy.size(); r++) {
+void PDistThy(vector<double>& probabilitiesThy, vector<double>& spaceBins, double diffusivity, int time, int timeInterval){
+    for(int r = 0; r < probabilitiesThy.size(); r++) {
         probabilitiesThy.at(r) = 1/sqrt(4 * M_PI * diffusivity * time * timeInterval) *
-        exp(((r * 2) + (time % 2) - (probabilitiesThy.size() - time % 2) * timeInterval) / (4 * diffusivity * time * timeInterval));
+        exp(-pow(spaceBins.at(r), 2) / (4 * diffusivity * time * timeInterval));
+        //((r * 2) + (time % 2) - (probabilitiesThy.size() - time % 2) * timeInterval) / (4 * diffusivity * time * timeInterval)
     }
 }
-void MeanSquareΤhy(vector<double>& meanSquareDisplacementThy, vector<double> timeBins, double diffusivity){
+void meanSquareΤhy(vector<double>& meanSquareDisplacementThy, vector<double> timeBins, double diffusivity){
     for(int t = 0; t < timeBins.size(); t++) {
         meanSquareDisplacementThy.at(t) = (2.0 * diffusivity * timeBins.at(t));
     }
@@ -123,12 +122,12 @@ void F_sThy(vector<double>&f_s, vector<double> timeBins, double diffusivity, dou
         f_s.at(t) = (exp(-pow(q, 2) * diffusivity * timeBins.at(t)));
     }
 }
-void normalize(vector<double> distribution, int binSize, int totalRuns){
+void normalize(vector<double>& distribution, int binSize, int totalRuns){
     for(int i = 0; i < distribution.size(); i++) {
-        distribution.at(i) /= totalRuns * binSize;
+        distribution.at(i) = distribution.at(i) / (totalRuns * binSize);
     }
 }
-void printToFile(vector<double> distribution, vector<double> bins, string name){
+void printToFile(vector<double>& distribution, vector<double>& bins, string name){
     ofstream printfile;
     printfile.open(name + ".dat");
     printfile << 0 << "," << distribution.at(0);
@@ -148,17 +147,19 @@ void saveParams(int totalRuns, int totalTime, int timeInterval, vector<int> eval
     printfile << current_dir << endl;
     printfile << __DATE__ << " , " << __TIME__ << endl << endl;
     printfile << "CURRENT RUN PARAMETERS" << endl;
-    printfile << "Runs: " << totalRuns << endl;
-    printfile << "Number of steps: " << totalTime << endl;
-    printfile << "Step interval: " << timeInterval << endl;
-    printfile << "Diffusivity: " << diffusivity << endl;
-    printfile << "Times for P(R(t)):" << endl;
+
+    printfile << "Runs:" << endl << totalRuns << endl;
+    printfile << "Number of steps: " << endl << totalTime << endl;
+    printfile << "Step interval: " << endl << timeInterval << endl;
+    printfile << "Diffusivity: " << endl << diffusivity << endl;
+    printfile << "Times for P(R(t))" << endl;
     for(int i = 0 ; i < 3; i++)
-        printfile << setw(5) << right << "t" << i + 1 << " = " << evalTimes.at(i) << endl;
-    printfile << "Qs for f_s(q,t):" << endl;
+        printfile << "t" << i + 1 << ": " << evalTimes.at(i) << endl;
+    printfile << "Qs for f_s(q,t)" << endl;
     for(int i = 0 ; i < 3; i++)
-        printfile << setw(5) << right << "q" << i + 1 << " = " << evalQs.at(i) << endl;
+        printfile << "q" << i + 1 << ": " << evalQs.at(i) << endl;
     printfile.close();
+
     /*
     cout << "Total Time: " << totalTime << endl;
     cout << "Time Interval: " << timeInterval << endl;
@@ -184,12 +185,7 @@ int main() {
     vector<double> evalQs(3);
     double diffusivity;
 
-    // Bins for Probabilities
-    vector<double> spaceBins;
-    cout << "Creating Spatial Bins" << endl;
-    vector<double> spaceBins1 = getSpaceBins(totalTime, 2, evalTimes.at(0));
-    vector<double> spaceBins2 = getSpaceBins(totalTime, 2, evalTimes.at(1));
-    vector<double> spaceBins3 = getSpaceBins(totalTime, 2, evalTimes.at(2));
+
     /*
     cout << "Space Bins 1" << endl;
     for(int i = 0; i < spaceBins1.size(); i++) {
@@ -219,6 +215,13 @@ int main() {
             firstHistory = "history" + to_string(firstHistoryNumber) + ".dat";
         }
     readData(firstHistory, timeBins, totalDisplacements, totalTime, timeInterval, totalRuns);
+
+    // Bins for Probabilities
+    cout << "Creating Spatial Bins" << endl;
+    vector<double> spaceBins1 = getSpaceBins(totalTime, 2, evalTimes.at(0));
+    vector<double> spaceBins2 = getSpaceBins(totalTime, 2, evalTimes.at(1));
+    vector<double> spaceBins3 = getSpaceBins(totalTime, 2, evalTimes.at(2));
+
     /*
     cout << "Time Bins" << endl;
     for(int i = 0; i < timeBins.size(); i++) {
@@ -243,29 +246,28 @@ int main() {
         cout << "Scaled Time: " << evalTimes.at(i);
     }
 
-
-
+    cout << "Initializing vectors" << endl;
+    cout << "SpaceBins Size: " << spaceBins1.size() << endl;
+        for(int i = 0; i < spaceBins1.size(); i++) {
+        cout << spaceBins1.at(i) << " ";
+        }
+        cout << endl;
     // Calculated Distributions
-    vector<double> meanSquareDisplacement(totalTime / timeInterval);
-    vector<double> probabilityDistribution1(totalTime * 2 + 1);
-    vector<double> probabilityDistribution2(totalTime * 2+ 1);
-    vector<double> probabilityDistribution3(totalTime * 2+ 1);
-    vector<double> f_s1(totalTime / timeInterval);
-    vector<double> f_s2(totalTime / timeInterval);
-    vector<double> f_s3(totalTime / timeInterval);
+    vector<double> meanSquareDisplacement(totalTime / timeInterval + 1);
+    vector<double> probabilityDistribution1(totalTime + 1);
+    vector<double> probabilityDistribution2(totalTime + 1);
+    vector<double> probabilityDistribution3(totalTime + 1);
+    vector<double> f_s1(totalTime / timeInterval + 1);
+    vector<double> f_s2(totalTime / timeInterval + 1);
+    vector<double> f_s3(totalTime / timeInterval + 1);
 
-    vector<double> meanSquareDisplacementThy(totalTime / timeInterval);
-    vector<double> probabilityDistribution1Thy(totalTime * 2+ 1);
-    vector<double> probabilityDistribution2Thy(totalTime * 2+ 1);
-    vector<double> probabilityDistribution3Thy(totalTime * 2+ 1);
-    vector<double> f_s1Thy(totalTime / timeInterval);
-    vector<double> f_s2Thy(totalTime / timeInterval);
-    vector<double> f_s3Thy(totalTime / timeInterval);
-
-
-   for(int i = 0; i < 3; i++) {
-        cout << "Scaled Time: " << evalTimes.at(i);
-    }
+    vector<double> meanSquareDisplacementThy(totalTime / timeInterval + 1);
+    vector<double> probabilityDistribution1Thy(totalTime + 1);
+    vector<double> probabilityDistribution2Thy(totalTime + 1);
+    vector<double> probabilityDistribution3Thy(totalTime + 1);
+    vector<double> f_s1Thy(totalTime / timeInterval + 1);
+    vector<double> f_s2Thy(totalTime / timeInterval + 1);
+    vector<double> f_s3Thy(totalTime / timeInterval + 1);
 
     // Read data and update data distributions with each run
     do {
@@ -278,6 +280,8 @@ int main() {
         }
         cout << "Reading Data" << endl;
         readData(firstHistory, timeBins, totalDisplacements, totalTime, timeInterval, totalRuns);
+
+        /*
         cout << "Time Bins" << endl;
         for(int i = 0; i < timeBins.size(); i++) {
             cout << timeBins.at(i) << " ";
@@ -295,6 +299,7 @@ int main() {
         for(int i = 0; i < 3; i++) {
         cout << "Scaled Time: " << evalTimes.at(i);
         }
+        */
 
         cout << "Building Probability Distributions" << endl;
         updatePDist(probabilityDistribution1, totalDisplacements, evalTimes.at(0));
@@ -302,53 +307,49 @@ int main() {
         updatePDist(probabilityDistribution3, totalDisplacements, evalTimes.at(2));
 
         cout << "Building Mean Square Displacement" << endl;
-        //updateMeanSquare(meanSquareDisplacement, timeBins, totalDisplacements);
+        updateMeanSquare(meanSquareDisplacement, timeBins, totalDisplacements);
 
-        /*
+        cout << "Building f_s" << endl;
         updateF_s(f_s1, timeBins, totalDisplacements, evalQs.at(0));
         updateF_s(f_s2, timeBins, totalDisplacements, evalQs.at(1));
         updateF_s(f_s3, timeBins, totalDisplacements, evalQs.at(2));
-        */
+
 
         firstHistoryNumber++;
     } while(firstHistoryNumber <= lastHistoryNumber);
 
+    /*
     cout << "PDist 1" << endl;
     for(int i = 0; i < probabilityDistribution1.size(); i++) {
         cout << probabilityDistribution1.at(i) << " ";
     }
+    */
 
-    /*
     // Normalize
-    normalize(meanSquareDisplacement, 1, totalRuns);
+    cout << "Normalizing" << endl;
     normalize(probabilityDistribution1, 2, totalRuns);
     normalize(probabilityDistribution2, 2, totalRuns);
     normalize(probabilityDistribution3, 2, totalRuns);
+    normalize(meanSquareDisplacement, 1, totalRuns);
     normalize(f_s1, 1, totalRuns);
     normalize(f_s2, 1, totalRuns);
     normalize(f_s3, 1, totalRuns);
 
-    normalize(meanSquareDisplacementThy, 1, totalRuns);
-    normalize(probabilityDistribution1Thy, 2, totalRuns);
-    normalize(probabilityDistribution2Thy, 2, totalRuns);
-    normalize(probabilityDistribution3Thy, 2, totalRuns);
-    normalize(f_s1Thy, 1, totalRuns);
-    normalize(f_s2Thy, 1, totalRuns);
-    normalize(f_s3Thy, 1, totalRuns);
-    */
 
-    /*
     // Build theory distributions
-    PDistThy(probabilityDistribution1Thy, diffusivity, evalTimes.at(0), timeInterval);
-    PDistThy(probabilityDistribution2Thy, diffusivity, evalTimes.at(1), timeInterval);
-    PDistThy(probabilityDistribution3Thy, diffusivity, evalTimes.at(2), timeInterval);
-    MeanSquare(meanSquareDisplacementThy, timeBins, diffusivity);
+    cout << "Building Theoretical Probabilities" << endl;
+    PDistThy(probabilityDistribution1Thy, spaceBins1, diffusivity, evalTimes.at(0), timeInterval);
+    PDistThy(probabilityDistribution2Thy, spaceBins2, diffusivity, evalTimes.at(1), timeInterval);
+    PDistThy(probabilityDistribution3Thy, spaceBins3, diffusivity, evalTimes.at(2), timeInterval);
+
+    cout << "Building Theoretical Mean Square Displacement" << endl;
+    meanSquareΤhy(meanSquareDisplacementThy, timeBins, diffusivity);
+
+    cout << "Building Theoretical f_s" << endl;
     F_sThy(f_s1Thy, timeBins, diffusivity, evalQs.at(0));
     F_sThy(f_s2Thy, timeBins, diffusivity, evalQs.at(1));
     F_sThy(f_s3Thy, timeBins, diffusivity, evalQs.at(2));
-    */
 
-    /*
     // Print to files
     printToFile(meanSquareDisplacement, timeBins, "MSD");
     printToFile(probabilityDistribution1, spaceBins1, "PDist1");
@@ -365,7 +366,7 @@ int main() {
     printToFile(f_s1Thy, timeBins, "f_s1 Theory");
     printToFile(f_s2Thy, timeBins, "f_s2 Theory");
     printToFile(f_s3Thy, timeBins, "f_s3 Theory");
-    */
+
     return 0;
 
 }
