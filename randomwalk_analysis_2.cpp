@@ -144,9 +144,9 @@ void saveParams(int totalRuns, int totalTime, int timeInterval, vector<int> eval
     ofstream printfile;
     printfile.open("params.txt");
 
+    printfile << "CURRENT RUN PARAMETERS" << endl;
     printfile << current_dir << endl;
     printfile << __DATE__ << " , " << __TIME__ << endl << endl;
-    printfile << "CURRENT RUN PARAMETERS" << endl;
 
     printfile << "Runs:" << endl << totalRuns << endl;
     printfile << "Number of steps: " << endl << totalTime << endl;
@@ -154,10 +154,10 @@ void saveParams(int totalRuns, int totalTime, int timeInterval, vector<int> eval
     printfile << "Diffusivity: " << endl << diffusivity << endl;
     printfile << "Times for P(R(t))" << endl;
     for(int i = 0 ; i < 3; i++)
-        printfile << "t" << i + 1 << ": " << evalTimes.at(i) << endl;
+        printfile << evalTimes.at(i) << endl;
     printfile << "Qs for f_s(q,t)" << endl;
     for(int i = 0 ; i < 3; i++)
-        printfile << "q" << i + 1 << ": " << evalQs.at(i) << endl;
+        printfile << evalQs.at(i) << endl;
     printfile.close();
 
     /*

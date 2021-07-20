@@ -7,11 +7,33 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-R_START = -1000 # Negative # of steps per run
-R_END = 1001 # # of steps + 1
-R_Range = [*range(R_START,R_END,1)]
+## Read parameters from file
+params = open('params.txt', 'r')
+params.readline()
+params.readline()
+params.readline()
+params.readline()
+params.readline()
+params.readline()
+parama.readline()
+STEPS = params.readline()
+params.readline()
+params.readline()
+params.readline()
+params.readline()
+params.readline()
+TIME1 = params.readline()
+TIME2 = params.readline()
+TIME3 = params.readline()
 
-TIMES = [10, 100, 1000]
+
+R_START = -int(STEPS.strip()) # Negative # of steps per run
+R_END = int(STEPS.strip()) + 1 # # of steps + 1
+
+R_Range = np.arange(R_START, R_END)
+#R_Range = [*range(R_START,R_END,1)]
+
+TIMES = [TIME1.strip(), TIME2.strip(), TIME3.strip()]
 #print(R_Range,' ')
 #T_Range = [range(0,STEPS,1)]
 
@@ -281,10 +303,10 @@ plt.savefig("mean_squares: Data and Theory.png")
 plt.clf()
 
 #p_dist_t1
-plt.scatter(XP1, YP1, color='cyan')
+plt.scatter(XP10, YP10, color='cyan')
 plt.scatter(XP1_T, YP1_T, marker='.', color='orange')
 
-plt.title('Probability Distribution at t = ' + TIMES[0])
+plt.title('Probability Distribution at t = ' + str(TIMES[0]))
 plt.xlabel('displacement')
 plt.ylabel('probability')
 plt.legend(["Data","Theory"])
@@ -292,10 +314,10 @@ plt.savefig("p_dist_t1: Data and Theory.png")
 plt.clf()
 
 #p_dist_t2
-plt.scatter(XP2, YP2, color='cyan')
+plt.scatter(XP20, YP20, color='cyan')
 plt.scatter(XP2_T, YP2_T, marker='.', color='orange')
 
-plt.title('Probability Distribution at t = ' + TIMES[1])
+plt.title('Probability Distribution at t = ' + str(TIMES[1]))
 plt.xlabel('displacement')
 plt.ylabel('probability')
 plt.legend(["Data","Theory"])
@@ -303,10 +325,10 @@ plt.savefig("p_dist_t2: Data and Theory.png")
 plt.clf()
 
 #p_dist_t3
-plt.scatter(XP3, YP3, color='cyan')
+plt.scatter(XP30, YP30, color='cyan')
 plt.scatter(XP3_T, YP3_T, marker='.', color='orange')
 
-plt.title('Probability Distribution at t = ' + TIMES[2])
+plt.title('Probability Distribution at t = ' + str(TIMES[2]))
 plt.xlabel('displacement')
 plt.ylabel('probability')
 plt.legend(["Data","Theory"])
