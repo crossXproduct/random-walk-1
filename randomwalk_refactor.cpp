@@ -111,7 +111,7 @@ string createPath(const char *fName) {
 
     if (mkdir(fName, 0777) == -1)
         //cout << "Folder " << folder_name << " exists." << endl;
-        cerr << "Error :  " << strerror(errno) << endl;
+        cerr << strerror(errno) << endl;
 
     //else cout << "Folder " << fName << " created." << endl;
 
